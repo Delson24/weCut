@@ -1,0 +1,12 @@
+.wecut-shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.wecut-button-hover:hover {
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+.hidden {
+    display: none;
+}

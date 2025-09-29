@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeCut - O corte perfeito, a um clique de você</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .wecut-shadow {
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        .wecut-button-hover:hover {
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+        .hidden {
+            display: none;
+        }
+        .active-page {
+            display: block;
+        }
+        .active-nav {
+            background-color: #f9fafb;
+        }
+        .typewriter h1 {
+            overflow: hidden;
+            border-right: .15em solid black;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: 
+                typing 3.5s steps(40, end),
+                blink-caret .75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: black; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white">
+    <!-- Navigation -->
+    <nav id="navigation" class="border-b border-gray-200 bg-white wecut-shadow">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center cursor-pointer" id="logo">
+                    <h1 class="text-2xl font-medium text-black">WeCut</h1>
+                    <span class="ml-3 text-sm text-gray-600 hidden sm:block">O corte perfeito, a um clique de você</span>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8" id="desktop-nav">
+                    <!-- Client Navigation -->
+                    <div id="client-nav">
+                        <button class="px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-50 wecut-button-hover nav-link" data-view="home-page">Início</button>
+                        <button class="px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-50 wecut-button-hover nav-link" data-view="search-page">
+                            <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>
+                            Buscar
+                        </button>
+                        <button class="px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-50 wecut-button-hover nav-link" data-view="appointments-page">
+                            <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i>
+                            Agendamentos
+                        </button>
+                    </div>
+                    
+                    <!-- Professional Navigation -->
+                    <div id="professional-nav" class="hidden">
+                        <button class="px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-50 wecut-button-hover nav-link" data-view="professional-dashboard-page">Dashboard</button>
+                        <button class="px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-50 wecut-button-hover nav-link" data-view="professional-dashboard-page">
+                            <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i>
+                            Agenda
+                        </button>
+                        <button class="px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-50 wecut-button-hover nav-link" data-view="professional-dashboard-page">
+                            <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>
+                            Perfil
+                        </button>
+                    </div>
+
+                    <!-- Admin Navigation -->
+                    <div id="admin-nav" class="hidden">
+                        <button class="px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-50 wecut-button-hover nav-link" data-view="admin-dashboard-page">Dashboard Admin</button>
+                        <button class="px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-50 wecut-button-hover nav-link" data-view="admin-dashboard-page">
+                            <i data-lucide="users" class="w-4 h-4 inline mr-2"></i>
+                            Salões
+                        </button>
+                        <button class="px-3 py-2 rounded-md text-sm font-medium text-black hover:bg-gray-50 wecut-button-hover nav-link" data-view="admin-dashboard-page">
+                            <i data-lucide="settings" class="w-4 h-4 inline mr-2"></i>
+                            Configurações
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Side - Auth and User Type -->
+                <div class="flex items-center space-x-4">
+                    <!-- Auth Buttons (não logado) -->
+                    <div class="hidden sm:flex items-center space-x-2" id="auth-buttons">
+                        <button class="px-4 py-2 text-sm text-black hover:bg-gray-50 rounded-md wecut-button-hover" id="login-btn">Entrar</button>
+                        <button class="px-4 py-2 text-sm bg-black text-white hover:bg-gray-800 rounded-md wecut-button-hover" id="signup-btn">Cadastrar</button>
+                    </div>
+
+                    <!-- User Menu (logado) -->
+                    <div id="user-menu" class="hidden">
+                        <div class="flex items-center space-x-2">
+                            <span id="user-name" class="text-sm text-black"></span>
+                            <button id="logout-btn" class="px-3 py-1 text-sm text-black hover:bg-gray-50 rounded-md wecut-button-hover">Sair</button>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Menu -->
+                    <button class="md:hidden text-black hover:bg-gray-50 p-2 rounded-md" id="mobile-menu-btn">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Sections -->
+    <div id="page-container">
+        <!-- Pending Approval Page -->
+        <section id="pending-approval-page" class="page-section hidden">
+            <div class="min-h-screen bg-white flex items-center justify-center px-4 py-8">
+                <div class="w-full max-w-md text-center">
+                    <div class="mb-8">
+                        <i data-lucide="clock" class="w-16 h-16 text-yellow-500 mx-auto mb-4"></i>
+                        <h1 class="text-2xl font-bold text-gray-900 mb-2">Cadastro em Análise</h1>
+                        <p class="text-gray-600">Seu cadastro como profissional está sendo revisado pela nossa equipe.</p>
+                        <p class="text-gray-600 mt-2">Você receberá uma notificação por e-mail assim que for aprovado.</p>
+                    </div>
+                    
+                    <button onclick="renderView('home-page')" 
+                            class="w-full bg-black text-white hover:bg-gray-800 py-3 rounded-lg wecut-button-hover">
+                        Voltar para o Início
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Home Page -->
+        <section id="home-page" class="page-section active-page">
+            <div class="min-h-screen bg-white">
+                <!-- Hero Section -->
+                <section class="bg-white py-20">
+                    <div class="max-w-7xl mx-auto px-4 text-center">
+                        <div class="typewriter mb-6">
+                            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-black inline-block">
+                                Encontre o seu cabeleireiro ideal em Moçambique
+                            </h1>
+                        </div>
+                        
+                        <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                            Descubra profissionais talentosos em Maputo, Beira, Nampula e outras cidades. 
+                            Agende seu próximo corte com facilidade e segurança.
+                        </p>
+                        
+                        <!-- Search Bar -->
+                        <div class="max-w-4xl mx-auto mb-8">
+                            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Serviço</label>
+                                        <select class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-black focus:ring-0">
+                                            <option value="">Todos os serviços</option>
+                                            <option value="corte-masculino">Corte Masculino</option>
+                                            <option value="corte-feminino">Corte Feminino</option>
+                                            <option value="barba">Barba</option>
+                                            <option value="coloracao">Coloração</option>
+                                            <option value="trancas">Tranças</option>
+                                            <option value="manicure">Manicure</option>
+                                            <option value="pedicure">Pedicure</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Localização</label>
+                                        <input type="text" 
+                                               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-black focus:ring-0" 
+                                               placeholder="Cidade ou bairro">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Data</label>
+                                        <input type="date" 
+                                               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-black focus:ring-0">
+                                    </div>
+                                    
+                                    <div class="flex items-end">
+                                        <button onclick="renderView('search-page')" 
+                                                class="w-full bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors wecut-button-hover font-medium">
+                                            <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>
+                                            Buscar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="flex flex-wrap justify-center gap-3 mb-12">
+                            <button class="px-4 py-2 text-sm border border-gray-300 rounded-full hover:bg-gray-50 cursor-pointer transition-colors">
+                                💇 Corte Masculino
+                            </button>
+                            <button class="px-4 py-2 text-sm border border-gray-300 rounded-full hover:bg-gray-50 cursor-pointer transition-colors">
+                                💇‍♀️ Corte Feminino
+                            </button>
+                            <button class="px-4 py-2 text-sm border border-gray-300 rounded-full hover:bg-gray-50 cursor-pointer transition-colors">
+                                🎨 Coloração
+                            </button>
+                            <button class="px-4 py-2 text-sm border border-gray-300 rounded-full hover:bg-gray-50 cursor-pointer transition-colors">
+                                🧔 Barba
+                            </button>
+                            <button class="px-4 py-2 text-sm border border-gray-300 rounded-full hover:bg-gray-50 cursor-pointer transition-colors">
+                                👑 Tranças
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stats Section -->
+                <section class="py-16 bg-gray-50">
+                    <div class="max-w-7xl mx-auto px-4">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                            <div>
+                                <div class="text-3xl font-bold text-black mb-2">500+</div>
+                                <div class="text-gray-600">Profissionais</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl font-bold text-black mb-2">10.000+</div>
+                                <div class="text-gray-600">Clientes Satisfeitos</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl font-bold text-black mb-2">15+</div>
+                                <div class="text-gray-600">Cidades</div>
+                            </div>
+                            <div>
+                                <div class="text-3xl font-bold text-black mb-2">4.8★</div>
+                                <div class="text-gray-600">Avaliação Média</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Featured Professionals -->
+                <section class="py-16 bg-white">
+                    <div class="max-w-7xl mx-auto px-4">
+                        <div class="text-center mb-12">
+                            <h2 class="text-3xl font-bold text-black mb-4">Profissionais em Destaque</h2>
+                            <p class="text-gray-600 text-lg">Os melhores cabeleireiros avaliados em Moçambique</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <div class="border border-gray-300 rounded-xl hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden group">
+                                <div class="aspect-[4/3] relative overflow-hidden">
+                                    <img 
+                                        src="https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" 
+                                        alt="João Silva"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                    <div class="absolute top-4 right-4">
+                                        <span class="bg-white text-black border border-gray-300 px-3 py-1 rounded-full text-sm font-medium shadow-sm">
+                                            45,00 MT
+                                        </span>
+                                    </div>
+                                    <div class="absolute bottom-4 left-4">
+                                        <span class="bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
+                                            Disponível
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-6">
+                                    <h3 class="text-xl font-semibold text-black mb-2">João Silva</h3>
+                                    <p class="text-gray-600 mb-3">Cabelereiro Profissional</p>
+                                    
+                                    <div class="flex items-center gap-4 mb-4 text-sm text-gray-600">
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                            <span class="font-medium text-black">4.9</span>
+                                            <span>(128 avaliações)</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                            <span>Maputo</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-2">
+                                        <button 
+                                            class="flex-1 border border-gray-300 hover:bg-gray-50 py-2 rounded-lg wecut-button-hover transition-colors"
+                                            onclick="viewProfessional(1)"
+                                        >
+                                            Ver Perfil
+                                        </button>
+                                        <button 
+                                            class="flex-1 bg-black text-white hover:bg-gray-800 py-2 rounded-lg wecut-button-hover transition-colors"
+                                            onclick="startBooking(1)"
+                                        >
+                                            Agendar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-300 rounded-xl hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden group">
+                                <div class="aspect-[4/3] relative overflow-hidden">
+                                    <img 
+                                        src="https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGhhaXJkcmVzc2VyfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" 
+                                        alt="Maria Santos"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                    <div class="absolute top-4 right-4">
+                                        <span class="bg-white text-black border border-gray-300 px-3 py-1 rounded-full text-sm font-medium shadow-sm">
+                                            85,00 MT
+                                        </span>
+                                    </div>
+                                    <div class="absolute bottom-4 left-4">
+                                        <span class="bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
+                                            Disponível
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-6">
+                                    <h3 class="text-xl font-semibold text-black mb-2">Maria Santos</h3>
+                                    <p class="text-gray-600 mb-3">Especialista em Coloração</p>
+                                    
+                                    <div class="flex items-center gap-4 mb-4 text-sm text-gray-600">
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                            <span class="font-medium text-black">4.8</span>
+                                            <span>(95 avaliações)</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                            <span>Matola</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-2">
+                                        <button 
+                                            class="flex-1 border border-gray-300 hover:bg-gray-50 py-2 rounded-lg wecut-button-hover transition-colors"
+                                            onclick="viewProfessional(2)"
+                                        >
+                                            Ver Perfil
+                                        </button>
+                                        <button 
+                                            class="flex-1 bg-black text-white hover:bg-gray-800 py-2 rounded-lg wecut-button-hover transition-colors"
+                                            onclick="startBooking(2)"
+                                        >
+                                            Agendar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="border border-gray-300 rounded-xl hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden group">
+                                <div class="aspect-[4/3] relative overflow-hidden">
+                                    <img 
+                                        src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGJhcmJlcnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" 
+                                        alt="Carlos Oliveira"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                    <div class="absolute top-4 right-4">
+                                        <span class="bg-white text-black border border-gray-300 px-3 py-1 rounded-full text-sm font-medium shadow-sm">
+                                            35,00 MT
+                                        </span>
+                                    </div>
+                                    <div class="absolute bottom-4 left-4">
+                                        <span class="bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
+                                            Disponível
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-6">
+                                    <h3 class="text-xl font-semibold text-black mb-2">Carlos Oliveira</h3>
+                                    <p class="text-gray-600 mb-3">Barbeiro Experiente</p>
+                                    
+                                    <div class="flex items-center gap-4 mb-4 text-sm text-gray-600">
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                            <span class="font-medium text-black">4.7</span>
+                                            <span>(76 avaliações)</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                            <span>Beira</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-2">
+                                        <button 
+                                            class="flex-1 border border-gray-300 hover:bg-gray-50 py-2 rounded-lg wecut-button-hover transition-colors"
+                                            onclick="viewProfessional(3)"
+                                        >
+                                            Ver Perfil
+                                        </button>
+                                        <button 
+                                            class="flex-1 bg-black text-white hover:bg-gray-800 py-2 rounded-lg wecut-button-hover transition-colors"
+                                            onclick="startBooking(3)"
+                                        >
+                                            Agendar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-12">
+                            <button onclick="renderView('search-page')" 
+                                    class="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors wecut-button-hover font-medium">
+                                Ver Todos os Profissionais
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- How it Works -->
+                <section class="py-16 bg-gray-50">
+                    <div class="max-w-7xl mx-auto px-4">
+                        <div class="text-center mb-12">
+                            <h2 class="text-3xl font-bold text-black mb-4">Como Funciona</h2>
+                            <p class="text-gray-600 text-lg">Simples, rápido e seguro</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="text-center p-6">
+                                <div class="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <i data-lucide="search" class="w-8 h-8 text-white"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-black mb-3">1. Busque</h3>
+                                <p class="text-gray-600">Encontre cabeleireiros no seu bairro ou cidade usando nossos filtros inteligentes e avaliações reais</p>
+                            </div>
+
+                            <div class="text-center p-6">
+                                <div class="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <i data-lucide="calendar" class="w-8 h-8 text-white"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-black mb-3">2. Agende</h3>
+                                <p class="text-gray-600">Escolha o horário disponível que melhor se encaixa na sua agenda com apenas alguns cliques</p>
+                            </div>
+
+                            <div class="text-center p-6">
+                                <div class="w-20 h-20 bg-black rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <i data-lucide="scissors" class="w-8 h-8 text-white"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-black mb-3">3. Aproveite</h3>
+                                <p class="text-gray-600">Tenha o corte perfeito sem preocupações e avalie sua experiência para ajudar outros clientes</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Cities Section -->
+                <section class="py-16 bg-white">
+                    <div class="max-w-7xl mx-auto px-4">
+                        <div class="text-center mb-12">
+                            <h2 class="text-3xl font-bold text-black mb-4">Disponível nas Principais Cidades</h2>
+                            <p class="text-gray-600 text-lg">Encontre profissionais de qualidade em todo Moçambique</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                            <div class="text-center p-4 border border-gray-200 rounded-lg hover:border-black transition-colors cursor-pointer">
+                                <i data-lucide="map-pin" class="w-6 h-6 text-red-500 mx-auto mb-2"></i>
+                                <span class="text-black font-medium">Maputo</span>
+                            </div>
+                            <div class="text-center p-4 border border-gray-200 rounded-lg hover:border-black transition-colors cursor-pointer">
+                                <i data-lucide="map-pin" class="w-6 h-6 text-red-500 mx-auto mb-2"></i>
+                                <span class="text-black font-medium">Matola</span>
+                            </div>
+                            <div class="text-center p-4 border border-gray-200 rounded-lg hover:border-black transition-colors cursor-pointer">
+                                <i data-lucide="map-pin" class="w-6 h-6 text-red-500 mx-auto mb-2"></i>
+                                <span class="text-black font-medium">Beira</span>
+                            </div>
+                            <div class="text-center p-4 border border-gray-200 rounded-lg hover:border-black transition-colors cursor-pointer">
+                                <i data-lucide="map-pin" class="w-6 h-6 text-red-500 mx-auto mb-2"></i>
+                                <span class="text-black font-medium">Nampula</span>
+                            </div>
+                            <div class="text-center p-4 border border-gray-200 rounded-lg hover:border-black transition-colors cursor-pointer">
+                                <i data-lucide="map-pin" class="w-6 h-6 text-red-500 mx-auto mb-2"></i>
+                                <span class="text-black font-medium">Quelimane</span>
+                            </div>
+                            <div class="text-center p-4 border border-gray-200 rounded-lg hover:border-black transition-colors cursor-pointer">
+                                <i data-lucide="map-pin" class="w-6 h-6 text-red-500 mx-auto mb-2"></i>
+                                <span class="text-black font-medium">Tete</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CTA Section -->
+                <section class="py-20 bg-black">
+                    <div class="max-w-4xl mx-auto px-4 text-center">
+                        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                            Pronto para o seu próximo corte?
+                        </h2>
+                        <p class="text-gray-300 text-lg mb-8">
+                            Junte-se a milhares de clientes satisfeitos e descubra os melhores profissionais de beleza perto de você.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button onclick="renderView('search-page')" 
+                                    class="bg-white text-black px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors wecut-button-hover font-medium">
+                                Encontrar Profissionais
+                            </button>
+                            <button onclick="renderView('login-page')" 
+                                    class="border border-white text-white px-8 py-3 rounded-lg hover:bg-white hover:text-black transition-colors wecut-button-hover font-medium">
+                                Criar Conta
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- Search Page -->
+        <section id="search-page" class="page-section hidden">
+            <div class="min-h-screen bg-gray-50">
+                <div class="max-w-7xl mx-auto px-4 py-8">
+                    <!-- Search Header -->
+                    <div class="bg-white rounded-lg p-6 mb-8 border border-gray-300">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="flex-1 relative">
+                                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+                                <input 
+                                    type="text"
+                                    placeholder="Buscar por localização, serviço ou profissional..."
+                                    class="w-full pl-10 h-12 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
+                                    id="search-input"
+                                />
+                            </div>
+                            <button class="border border-gray-300 h-12 px-6 rounded-lg hover:bg-gray-50 wecut-button-hover" onclick="showFilters()">
+                                <i data-lucide="filter" class="w-4 h-4 inline mr-2"></i>
+                                Filtros
+                            </button>
+                            <button class="bg-black text-white hover:bg-gray-800 h-12 px-8 rounded-lg wecut-button-hover" onclick="performSearch()">
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Results Header -->
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl text-black" id="results-count">1 profissionais encontrados</h2>
+                        <select class="w-48 border border-gray-300 rounded-lg p-2 focus:border-black focus:ring-0" id="sort-select">
+                            <option>Ordenar por relevância</option>
+                            <option>Melhor avaliado</option>
+                            <option>Mais próximo</option>
+                            <option>Menor preço</option>
+                            <option>Maior preço</option>
+                        </select>
+                    </div>
+
+                    <!-- Results Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="search-results">
+                        <div class="border border-gray-300 cursor-pointer transition-all hover:shadow-lg rounded-lg overflow-hidden">
+                            <div class="flex">
+                                <div class="w-32 h-32 relative flex-shrink-0">
+                                    <img 
+                                        src="https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" 
+                                        alt="João Silva"
+                                        class="w-full h-full object-cover"
+                                    />
+                                    <div class="absolute top-2 left-2">
+                                        <span class="bg-green-600 text-white text-xs px-2 py-1 rounded">Disponível</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex-1 p-4">
+                                    <div class="flex items-start justify-between mb-2">
+                                        <div>
+                                            <h3 class="text-lg text-black">João Silva</h3>
+                                            <p class="text-gray-600 text-sm">Cabelereiro</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg text-black">45,00 MT</p>
+                                            <p class="text-xs text-gray-500">por serviço</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center gap-4 mb-3 text-sm text-gray-600">
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                            <span>4.9</span>
+                                            <span>(128)</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                            <span>Maputo</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="clock" class="w-4 h-4"></i>
+                                            <span>Hoje, 14:30</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-2">
+                                        <button 
+                                            class="flex-1 border border-gray-300 hover:bg-gray-50 py-2 rounded wecut-button-hover"
+                                            onclick="viewProfessional(1)"
+                                        >
+                                            Ver Perfil
+                                        </button>
+                                        <button 
+                                            class="flex-1 bg-black text-white hover:bg-gray-800 py-2 rounded wecut-button-hover"
+                                            onclick="startBooking(1)"
+                                        >
+                                            Agendar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Page -->
+        <section id="booking-page" class="page-section hidden">
+            <div class="min-h-screen bg-white">
+                <div class="max-w-6xl mx-auto">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between p-4 border-b border-gray-300">
+                        <button 
+                            class="text-black hover:bg-gray-50 p-2 rounded wecut-button-hover"
+                            onclick="renderView('professional-profile-page')"
+                        >
+                            <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
+                            Voltar
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6">
+                        <!-- Left Column - Profile Info -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Professional Header -->
+                            <div class="flex items-start gap-6">
+                                <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
+                                    <img 
+                                        src="https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" 
+                                        alt="João Silva"
+                                        class="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <div class="flex-1">
+                                    <h1 class="text-3xl font-medium text-black mb-1">João Silva</h1>
+                                    <p class="text-lg text-gray-600 mb-2">Barbearia Clássica</p>
+                                    <p class="text-gray-600 mb-3">Especialista em Cortes Masculinos e Barba</p>
+                                    
+                                    <div class="flex items-center gap-6 mb-4">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex gap-1">
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                            </div>
+                                            <span class="text-lg font-medium text-black">4.9</span>
+                                            <span class="text-gray-600">(128 avaliações)</span>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-gray-600">
+                                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                            <span>Maputo</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Booking Form -->
+                            <div class="border border-gray-300 rounded-lg p-6">
+                                <h3 class="text-xl font-medium text-black mb-4">Agendar Serviço</h3>
+                                
+                                <form id="booking-form" onsubmit="confirmBooking(event)">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-black mb-2">Data</label>
+                                            <input type="date" id="booking-date" required
+                                                   class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-black mb-2">Horário</label>
+                                            <select id="booking-time" required
+                                                    class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                                <option value="">Selecione um horário</option>
+                                                <option value="09:00">09:00</option>
+                                                <option value="10:00">10:00</option>
+                                                <option value="11:00">11:00</option>
+                                                <option value="14:00">14:00</option>
+                                                <option value="15:00">15:00</option>
+                                                <option value="16:00">16:00</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-black mb-2">Serviço</label>
+                                        <select id="booking-service" required
+                                                class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                            <option value="">Selecione um serviço</option>
+                                            <option value="Corte Masculino">Corte Masculino - 1.800 MT</option>
+                                            <option value="Barba">Barba - 1.000 MT</option>
+                                            <option value="Corte + Barba">Corte + Barba - 2.400 MT</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-black mb-2">Observações (opcional)</label>
+                                        <textarea id="booking-notes" rows="3"
+                                                  class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
+                                                  placeholder="Alguma observação especial..."></textarea>
+                                    </div>
+                                    
+                                    <button type="submit" 
+                                            class="w-full bg-black text-white hover:bg-gray-800 py-3 rounded-lg wecut-button-hover">
+                                        Confirmar Agendamento
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Summary -->
+                        <div class="space-y-6">
+                            <!-- Booking Summary -->
+                            <div class="border border-gray-300 rounded-lg wecut-shadow p-6 sticky top-6">
+                                <h3 class="text-xl font-medium text-black mb-4">Resumo do Agendamento</h3>
+                                
+                                <div class="space-y-3 mb-4">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Profissional:</span>
+                                        <span class="text-black">João Silva</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Serviço:</span>
+                                        <span class="text-black" id="summary-service">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Data:</span>
+                                        <span class="text-black" id="summary-date">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Horário:</span>
+                                        <span class="text-black" id="summary-time">-</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="border-t border-gray-300 pt-4">
+                                    <div class="flex justify-between text-lg font-medium">
+                                        <span class="text-black">Total:</span>
+                                        <span class="text-black" id="summary-price">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Appointments Page -->
+        <section id="appointments-page" class="page-section hidden">
+            <div class="min-h-screen bg-gray-50">
+                <div class="max-w-6xl mx-auto px-4 py-8">
+                    <!-- Header -->
+                    <div class="mb-8">
+                        <h1 class="text-3xl text-black mb-2">Meus Agendamentos</h1>
+                        <p class="text-gray-600">Gerencie seus agendamentos e histórico de serviços</p>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="border border-gray-300 rounded-lg p-6 text-center bg-white">
+                            <div class="flex items-center justify-center mb-2">
+                                <i data-lucide="calendar" class="w-6 h-6 text-blue-600"></i>
+                            </div>
+                            <p class="text-2xl text-black">1</p>
+                            <p class="text-sm text-gray-600">Próximos agendamentos</p>
+                        </div>
+                        
+                        <div class="border border-gray-300 rounded-lg p-6 text-center bg-white">
+                            <div class="flex items-center justify-center mb-2">
+                                <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                            </div>
+                            <p class="text-2xl text-black">0</p>
+                            <p class="text-sm text-gray-600">Serviços realizados</p>
+                        </div>
+                        
+                        <div class="border border-gray-300 rounded-lg p-6 text-center bg-white">
+                            <div class="flex items-center justify-center mb-2">
+                                <i data-lucide="star" class="w-6 h-6 text-yellow-600"></i>
+                            </div>
+                            <p class="text-2xl text-black">4.5</p>
+                            <p class="text-sm text-gray-600">Avaliação média dada</p>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="bg-white rounded-lg border border-gray-300">
+                        <div class="border-b border-gray-300">
+                            <div class="flex">
+                                <button class="flex-1 py-4 text-center border-b-2 border-black text-black font-medium" onclick="switchAppointmentTab('upcoming')">Próximos</button>
+                                <button class="flex-1 py-4 text-center text-gray-600 hover:text-black" onclick="switchAppointmentTab('history')">Histórico</button>
+                                <button class="flex-1 py-4 text-center text-gray-600 hover:text-black" onclick="switchAppointmentTab('cancelled')">Cancelados</button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="space-y-6" id="appointments-list">
+                                <div class="border border-gray-300 rounded-lg hover:shadow-lg transition-shadow p-6">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
+                                            <img 
+                                                src="https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" 
+                                                alt="João Silva"
+                                                class="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        
+                                        <div class="flex-1">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div>
+                                                    <h3 class="text-lg text-black">João Silva</h3>
+                                                    <p class="text-gray-600">Corte Masculino</p>
+                                                    <p class="text-sm text-gray-500">Código: WC001</p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="text-lg text-black">45,00 MT</p>
+                                                    <span class="bg-green-100 text-green-800 border border-green-200 px-2 py-1 rounded text-sm">Confirmado</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
+                                                <div class="flex items-center gap-2 text-gray-600">
+                                                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                                                    <span>${new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-gray-600">
+                                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                                    <span>14:00</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-gray-600">
+                                                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                                    <span>Maputo</span>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-gray-600">
+                                                    <i data-lucide="phone" class="w-4 h-4"></i>
+                                                    <span>+258 84 123 4567</span>
+                                                </div>
+                                            </div>
+
+                                            <p class="text-sm text-gray-600 mb-4">Av. Julius Nyerere, 123 - Polana, Maputo</p>
+
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded text-sm wecut-button-hover">
+                                                    <i data-lucide="message-circle" class="w-4 h-4 inline mr-2"></i>
+                                                    Mensagem
+                                                </button>
+                                                <button class="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded text-sm wecut-button-hover">
+                                                    <i data-lucide="navigation" class="w-4 h-4 inline mr-2"></i>
+                                                    Direções
+                                                </button>
+                                                <button class="border border-red-200 hover:bg-red-50 text-red-600 px-3 py-1 rounded text-sm wecut-button-hover">
+                                                    <i data-lucide="x-circle" class="w-4 h-4 inline mr-2"></i>
+                                                    Cancelar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Professional Dashboard Page -->
+        <section id="professional-dashboard-page" class="page-section hidden">
+            <div class="min-h-screen bg-gray-50">
+                <div class="max-w-7xl mx-auto px-4 py-8">
+                    <!-- Header -->
+                    <div class="mb-8">
+                        <h1 class="text-3xl font-bold text-gray-900">Dashboard Profissional</h1>
+                        <p class="text-gray-600">Gerencie seus agendamentos e serviços</p>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">1</p>
+                                    <p class="text-gray-600">Agendamentos Hoje</p>
+                                </div>
+                                <i data-lucide="calendar" class="w-8 h-8 text-blue-600"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">1</p>
+                                    <p class="text-gray-600">Próximos 7 Dias</p>
+                                </div>
+                                <i data-lucide="calendar-days" class="w-8 h-8 text-green-600"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">4.9</p>
+                                    <p class="text-gray-600">Avaliação Média</p>
+                                </div>
+                                <i data-lucide="star" class="w-8 h-8 text-yellow-600"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">128</p>
+                                    <p class="text-gray-600">Avaliações</p>
+                                </div>
+                                <i data-lucide="message-circle" class="w-8 h-8 text-purple-600"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="bg-white rounded-lg border border-gray-300 shadow-sm">
+                        <div class="border-b border-gray-300">
+                            <div class="flex overflow-x-auto">
+                                <button class="px-6 py-4 border-b-2 whitespace-nowrap border-black text-black font-medium" 
+                                        onclick="switchProfessionalTab('today')">
+                                    <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i>
+                                    Hoje
+                                </button>
+                                <button class="px-6 py-4 border-b-2 whitespace-nowrap text-gray-600 hover:text-black" 
+                                        onclick="switchProfessionalTab('upcoming')">
+                                    <i data-lucide="calendar-days" class="w-4 h-4 inline mr-2"></i>
+                                    Próximos
+                                </button>
+                                <button class="px-6 py-4 border-b-2 whitespace-nowrap text-gray-600 hover:text-black" 
+                                        onclick="switchProfessionalTab('completed')">
+                                    <i data-lucide="check-circle" class="w-4 h-4 inline mr-2"></i>
+                                    Concluídos
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="border border-gray-300 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div>
+                                            <h3 class="font-medium text-gray-900">Cliente Teste</h3>
+                                            <p class="text-gray-600">Corte Masculino • 14:00</p>
+                                        </div>
+                                        <span class="px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                                            Confirmado
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between text-sm text-gray-600 mb-3">
+                                        <div class="flex items-center gap-4">
+                                            <span>📅 ${new Date().toLocaleDateString('pt-BR')}</span>
+                                            <span>⏰ 14:00</span>
+                                            <span>💰 45,00 MT</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex gap-2">
+                                        <button onclick="viewAppointmentDetails(1)" 
+                                                class="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded text-sm wecut-button-hover">
+                                            <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
+                                            Detalhes
+                                        </button>
+                                        
+                                        <button onclick="markAppointmentAsCompleted(1)" 
+                                                class="bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded text-sm wecut-button-hover">
+                                            <i data-lucide="check" class="w-4 h-4 inline mr-1"></i>
+                                            Concluir
+                                        </button>
+                                        <button onclick="cancelAppointment(1)" 
+                                                class="bg-red-600 text-white hover:bg-red-700 px-3 py-1 rounded text-sm wecut-button-hover">
+                                            <i data-lucide="x" class="w-4 h-4 inline mr-1"></i>
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Dashboard Page -->
+        <section id="admin-dashboard-page" class="page-section hidden">
+            <div class="min-h-screen bg-gray-50">
+                <div class="max-w-7xl mx-auto px-4 py-8">
+                    <!-- Header -->
+                    <div class="mb-8">
+                        <h1 class="text-3xl font-bold text-gray-900">Painel Administrativo</h1>
+                        <p class="text-gray-600">Gerencie cadastros, salões e usuários do sistema</p>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">3</p>
+                                    <p class="text-gray-600">Total de Usuários</p>
+                                </div>
+                                <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">1</p>
+                                    <p class="text-gray-600">Salões Ativos</p>
+                                </div>
+                                <i data-lucide="check-circle" class="w-8 h-8 text-green-600"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">1</p>
+                                    <p class="text-gray-600">Cadastros Pendentes</p>
+                                </div>
+                                <i data-lucide="clock" class="w-8 h-8 text-yellow-600"></i>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-2xl font-bold text-gray-900">1</p>
+                                    <p class="text-gray-600">Agendamentos</p>
+                                </div>
+                                <i data-lucide="calendar" class="w-8 h-8 text-purple-600"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabs -->
+                    <div class="bg-white rounded-lg border border-gray-300 shadow-sm">
+                        <div class="border-b border-gray-300">
+                            <div class="flex overflow-x-auto">
+                                <button class="px-6 py-4 border-b-2 whitespace-nowrap border-black text-black font-medium" 
+                                        onclick="switchAdminTab('pending-salons')">
+                                    <i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>
+                                    Cadastros Pendentes
+                                    <span class="ml-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">1</span>
+                                </button>
+                                <button class="px-6 py-4 border-b-2 whitespace-nowrap text-gray-600 hover:text-black" 
+                                        onclick="switchAdminTab('approved-salons')">
+                                    <i data-lucide="check-circle" class="w-4 h-4 inline mr-2"></i>
+                                    Salões Aprovados
+                                </button>
+                                <button class="px-6 py-4 border-b-2 whitespace-nowrap text-gray-600 hover:text-black" 
+                                        onclick="switchAdminTab('users')">
+                                    <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>
+                                    Todos os Usuários
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-900 mb-6">Cadastros de Profissionais Pendentes</h2>
+                                
+                                <div class="space-y-6">
+                                    <div class="border border-gray-300 rounded-lg p-6 hover:shadow-md transition-shadow">
+                                        <div class="flex items-start justify-between mb-4">
+                                            <div>
+                                                <h3 class="text-lg font-medium text-gray-900">Salão Pendente</h3>
+                                                <p class="text-gray-600">Solicitado por: Profissional Pendente</p>
+                                                <p class="text-sm text-gray-500">Enviado em: ${new Date().toLocaleDateString('pt-BR')}</p>
+                                            </div>
+                                            <span class="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full">Pendente</span>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
+                                            <div class="flex items-center gap-2">
+                                                <i data-lucide="mail" class="w-4 h-4 text-gray-400"></i>
+                                                <span>pending@example.com</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <i data-lucide="phone" class="w-4 h-4 text-gray-400"></i>
+                                                <span>+258 84 999 9999</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <i data-lucide="map-pin" class="w-4 h-4 text-gray-400"></i>
+                                                <span>Matola</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <i data-lucide="scissors" class="w-4 h-4 text-gray-400"></i>
+                                                <span>Cabelereiro</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">Endereço Completo</label>
+                                            <p class="text-gray-600">Av. Central, 456</p>
+                                        </div>
+                                        
+                                        <div class="flex gap-3">
+                                            <button onclick="approveRegistration(1)" 
+                                                    class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg wecut-button-hover flex items-center gap-2">
+                                                <i data-lucide="check" class="w-4 h-4"></i>
+                                                Aprovar Cadastro
+                                            </button>
+                                            <button onclick="openRejectModal(1)" 
+                                                    class="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg wecut-button-hover flex items-center gap-2">
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                                Rejeitar
+                                            </button>
+                                            <button onclick="viewSalonDetails(1)" 
+                                                    class="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-lg wecut-button-hover flex items-center gap-2">
+                                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                                Ver Detalhes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Rejeição -->
+            <div id="reject-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                <div class="bg-white rounded-lg w-full max-w-md mx-4">
+                    <div class="border-b border-gray-300 p-6">
+                        <h3 class="text-xl font-medium text-black">Rejeitar Cadastro</h3>
+                    </div>
+                    
+                    <div class="p-6">
+                        <form id="reject-form" onsubmit="handleRejectSubmission(event)">
+                            <input type="hidden" id="reject-registration-id">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-black mb-2">Motivo da Rejeição</label>
+                                <textarea id="reject-reason" required rows="4" 
+                                          class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
+                                          placeholder="Digite o motivo da rejeição..."></textarea>
+                            </div>
+                            
+                            <div class="flex gap-3">
+                                <button type="button" onclick="closeRejectModal()" 
+                                        class="flex-1 border border-gray-300 hover:bg-gray-50 py-2 rounded wecut-button-hover">
+                                    Cancelar
+                                </button>
+                                <button type="submit" 
+                                        class="flex-1 bg-red-600 text-white hover:bg-red-700 py-2 rounded wecut-button-hover">
+                                    Confirmar Rejeição
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Detalhes do Salão -->
+            <div id="salon-details-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+                <div class="bg-white rounded-lg w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="border-b border-gray-300 p-6">
+                        <h3 class="text-xl font-medium text-black" id="salon-details-title">Detalhes do Salão</h3>
+                    </div>
+                    
+                    <div class="p-6" id="salon-details-content">
+                        <!-- Conteúdo será preenchido por JavaScript -->
+                    </div>
+                    
+                    <div class="border-t border-gray-300 p-6 flex gap-3">
+                        <button onclick="closeSalonDetailsModal()" 
+                                class="flex-1 border border-gray-300 hover:bg-gray-50 py-2 rounded wecut-button-hover">
+                            Fechar
+                        </button>
+                        <button id="approve-from-details" class="flex-1 bg-green-600 text-white hover:bg-green-700 py-2 rounded wecut-button-hover">
+                            Aprovar Salão
+                        </button>
+                        <button id="reject-from-details" class="flex-1 bg-red-600 text-white hover:bg-red-700 py-2 rounded wecut-button-hover">
+                            Rejeitar Salão
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Login Page -->
+        <section id="login-page" class="page-section hidden">
+            <div class="min-h-screen bg-white flex items-center justify-center px-4 py-8">
+                <div class="w-full max-w-md">
+                    <!-- Back Button -->
+                    <button class="mb-8 text-black hover:bg-gray-50 p-2 rounded wecut-button-hover"
+                            onclick="renderView('home-page')">
+                        <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
+                        Voltar
+                    </button>
+
+                    <!-- Logo -->
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-medium text-black mb-2">WeCut</h1>
+                        <p class="text-gray-600">Entre na sua conta</p>
+                    </div>
+
+                    <!-- Login Form -->
+                    <div class="border border-gray-300 rounded-lg wecut-shadow p-6">
+                        <h2 class="text-2xl text-center text-black mb-6">Fazer Login</h2>
+                        
+                        <form id="login-form" onsubmit="handleLogin(event)" class="space-y-6">
+                            <div>
+                                <label for="email" class="block text-black mb-2">E-mail</label>
+                                <input type="email" id="email" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
+                                       placeholder="seu@email.com">
+                            </div>
+                            
+                            <div>
+                                <label for="password" class="block text-black mb-2">Senha</label>
+                                <input type="password" id="password" required
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
+                                       placeholder="••••••••">
+                            </div>
+
+                            <button type="submit" 
+                                    class="w-full bg-black text-white hover:bg-gray-800 py-3 rounded-lg wecut-button-hover">
+                                Entrar
+                            </button>
+
+                            <div class="text-center">
+                                <span class="text-gray-600">Não tem uma conta? </span>
+                                <button type="button" class="text-black hover:text-gray-600" 
+                                        onclick="showRegisterForm()">
+                                    Criar conta
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Registration Form -->
+                        <div id="register-form" class="hidden space-y-6 mt-6">
+                            <div>
+                                <label class="block text-black mb-3">Tipo de conta</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <label class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                        <input type="radio" name="userType" value="client" class="mr-3" checked>
+                                        <div>
+                                            <p class="font-medium text-black">Cliente</p>
+                                            <p class="text-sm text-gray-600">Agendar serviços</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                        <input type="radio" name="userType" value="professional" class="mr-3">
+                                        <div>
+                                            <p class="font-medium text-black">Profissional</p>
+                                            <p class="text-sm text-gray-600">Oferecer serviços</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <input type="text" id="register-name" placeholder="Nome completo" 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0" required>
+                            <input type="email" id="register-email" placeholder="E-mail" 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0" required>
+                            <input type="password" id="register-password" placeholder="Senha" 
+                                   class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0" required>
+
+                            <!-- Professional fields -->
+                            <div id="professional-fields" class="hidden space-y-4">
+                                <input type="text" id="salon-name" placeholder="Nome do salão/estabelecimento" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                <input type="text" id="salon-location" placeholder="Localização (cidade, bairro)" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                <input type="tel" id="salon-phone" placeholder="Telefone do salão" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                <textarea id="salon-address" placeholder="Endereço completo do salão" 
+                                          class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"></textarea>
+                                
+                                <!-- Serviços oferecidos -->
+                                <div>
+                                    <label class="block text-sm font-medium text-black mb-2">Serviços Oferecidos</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" value="Corte Masculino" class="mr-2 service-checkbox">
+                                            <span class="text-sm">Corte Masculino</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" value="Corte Feminino" class="mr-2 service-checkbox">
+                                            <span class="text-sm">Corte Feminino</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" value="Barba" class="mr-2 service-checkbox">
+                                            <span class="text-sm">Barba</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" value="Coloração" class="mr-2 service-checkbox">
+                                            <span class="text-sm">Coloração</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" value="Manicure" class="mr-2 service-checkbox">
+                                            <span class="text-sm">Manicure</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" value="Pedicure" class="mr-2 service-checkbox">
+                                            <span class="text-sm">Pedicure</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Horário de funcionamento -->
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-black mb-2">Horário de Abertura</label>
+                                        <input type="time" id="opening-time" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-black mb-2">Horário de Fechamento</label>
+                                        <input type="time" id="closing-time" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                    </div>
+                                </div>
+                                
+                                <!-- Upload de fotos (simulado) -->
+                                <div>
+                                    <label class="block text-sm font-medium text-black mb-2">Fotos do Salão (URLs separadas por vírgula)</label>
+                                    <textarea id="salon-photos" placeholder="https://exemplo.com/foto1.jpg, https://exemplo.com/foto2.jpg" 
+                                              class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
+                                              rows="2"></textarea>
+                                    <p class="text-xs text-gray-500 mt-1">Forneça URLs separadas por vírgula para simular o upload de fotos</p>
+                                </div>
+                            </div>
+
+                            <button onclick="handleRegister(event)" 
+                                    class="w-full bg-green-600 text-white hover:bg-green-700 py-3 rounded-lg wecut-button-hover">
+                                Cadastrar
+                            </button>
+
+                            <div class="text-center">
+                                <button type="button" onclick="showLoginForm()" 
+                                        class="text-black hover:text-gray-600">
+                                    Já tem conta? Fazer login
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Professional Profile Page -->
+        <section id="professional-profile-page" class="page-section hidden">
+            <div class="min-h-screen bg-white">
+                <div class="max-w-6xl mx-auto">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between p-4 border-b border-gray-300">
+                        <button 
+                            class="text-black hover:bg-gray-50 p-2 rounded wecut-button-hover"
+                            onclick="renderView('search-page')"
+                        >
+                            <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
+                            Voltar
+                        </button>
+                        <div class="flex gap-2">
+                            <button class="text-black hover:bg-gray-50 p-2 rounded wecut-button-hover">
+                                <i data-lucide="heart" class="w-4 h-4"></i>
+                            </button>
+                            <button class="text-black hover:bg-gray-50 p-2 rounded wecut-button-hover">
+                                <i data-lucide="share-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 p-6">
+                        <!-- Left Column - Profile Info -->
+                        <div class="lg:col-span-2 space-y-6">
+                            <!-- Professional Header -->
+                            <div class="flex items-start gap-6">
+                                <div class="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
+                                    <img 
+                                        src="https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" 
+                                        alt="João Silva"
+                                        class="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <div class="flex-1">
+                                    <h1 class="text-3xl font-medium text-black mb-1">João Silva</h1>
+                                    <p class="text-lg text-gray-600 mb-2">Barbearia Clássica</p>
+                                    <p class="text-gray-600 mb-3">Especialista em Cortes Masculinos e Barba</p>
+                                    
+                                    <div class="flex items-center gap-6 mb-4">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex gap-1">
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 stroke-yellow-400"></i>
+                                            </div>
+                                            <span class="text-lg font-medium text-black">4.9</span>
+                                            <span class="text-gray-600">(128 avaliações)</span>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-gray-600">
+                                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                            <span>Maputo</span>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-gray-700 mb-4">Profissional apaixonado por criar looks únicos e modernos. Especializo-me em cortes masculinos clássicos e contemporâneos, sempre buscando a excelência no atendimento aos meus clientes em Maputo.</p>
+
+                                    <div class="flex items-center gap-4 text-sm text-gray-600">
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="clock" class="w-4 h-4"></i>
+                                            <span>8 anos de experiência</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="phone" class="w-4 h-4"></i>
+                                            <span>(+258) 84 123 4567</span>
+                                        </div>
+                                        <div class="flex items-center gap-1">
+                                            <i data-lucide="instagram" class="w-4 h-4"></i>
+                                            <span>@carlosmacamo_barber</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tabs Content -->
+                            <div class="border border-gray-300 rounded-lg">
+                                <div class="border-b border-gray-300">
+                                    <div class="flex">
+                                        <button class="flex-1 py-4 text-center border-b-2 border-black text-black font-medium">Portfólio</button>
+                                        <button class="flex-1 py-4 text-center text-gray-600 hover:text-black">Serviços</button>
+                                        <button class="flex-1 py-4 text-center text-gray-600 hover:text-black">Avaliações</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-6">
+                                    <!-- Portfolio Content -->
+                                    <div class="space-y-6">
+                                        <div class="aspect-[4/3] rounded-lg overflow-hidden">
+                                            <img 
+                                                src="https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" 
+                                                alt="Portfolio image"
+                                                class="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-4 gap-4">
+                                            <div class="aspect-square rounded-lg overflow-hidden border-2 border-gray-300">
+                                                <img 
+                                                    src="https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" 
+                                                    alt="Thumbnail 1"
+                                                    class="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div class="aspect-square rounded-lg overflow-hidden border-2 border-gray-300">
+                                                <img 
+                                                    src="https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" 
+                                                    alt="Thumbnail 2"
+                                                    class="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div class="aspect-square rounded-lg overflow-hidden border-2 border-gray-300">
+                                                <img 
+                                                    src="https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" 
+                                                    alt="Thumbnail 3"
+                                                    class="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div class="aspect-square rounded-lg overflow-hidden border-2 border-gray-300">
+                                                <img 
+                                                    src="https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60" 
+                                                    alt="Thumbnail 4"
+                                                    class="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column - Booking -->
+                        <div class="space-y-6">
+                            <!-- Quick Book Card -->
+                            <div class="border border-gray-300 rounded-lg wecut-shadow p-6 sticky top-6">
+                                <h3 class="text-xl font-medium text-black mb-4">Agendar Horário</h3>
+                                
+                                <div class="space-y-4 mb-6">
+                                    <div>
+                                        <p class="text-sm font-medium text-black mb-2">Próximos horários</p>
+                                        <div class="space-y-2">
+                                            <button class="w-full p-3 text-left border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-black">Hoje</span>
+                                                    <span class="text-gray-600">14:30</span>
+                                                </div>
+                                            </button>
+                                            <button class="w-full p-3 text-left border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-black">Hoje</span>
+                                                    <span class="text-gray-600">15:00</span>
+                                                </div>
+                                            </button>
+                                            <button class="w-full p-3 text-left border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-black">Amanhã</span>
+                                                    <span class="text-gray-600">09:00</span>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <button 
+                                        class="w-full bg-black text-white hover:bg-gray-800 py-2 rounded wecut-button-hover"
+                                        onclick="startBooking(1)"
+                                    >
+                                        <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i>
+                                        Agendar agora
+                                    </button>
+                                    
+                                    <button class="w-full border border-gray-300 hover:bg-gray-50 py-2 rounded wecut-button-hover">
+                                        <i data-lucide="phone" class="w-4 h-4 inline mr-2"></i>
+                                        Ligar
+                                    </button>
+                                </div>
+
+                                <div class="mt-6 pt-6 border-t border-gray-300">
+                                    <div class="text-center text-sm text-gray-600">
+                                        <p class="mb-1">📍 Av. Julius Nyerere, 123 - Polana, Maputo</p>
+                                        <button class="text-black hover:text-gray-600">Ver no mapa</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Business Hours -->
+                            <div class="border border-gray-300 rounded-lg p-6">
+                                <h4 class="font-medium text-black mb-4">Horário de Funcionamento</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Segunda-feira</span>
+                                        <span class="text-black">09:00 - 18:00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Terça-feira</span>
+                                        <span class="text-black">09:00 - 18:00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Quarta-feira</span>
+                                        <span class="text-black">09:00 - 18:00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Quinta-feira</span>
+                                        <span class="text-black">09:00 - 18:00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Sexta-feira</span>
+                                        <span class="text-black">09:00 - 18:00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Sábado</span>
+                                        <span class="text-black">08:00 - 17:00</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Domingo</span>
+                                        <span class="text-red-600">Fechado</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Estado da aplicação
+        const appState = {
+            currentUser: null,
+            userType: 'client',
+            activeView: 'home-page',
+            bookingProfessionalId: null,
+            adminTab: 'pending-salons',
+            professionalTab: 'today',
+
+            users: [
+                { 
+                    id: 1, 
+                    name: 'Cliente Teste', 
+                    email: 'client@example.com', 
+                    password: '123', 
+                    type: 'client', 
+                    createdAt: new Date().toISOString() 
+                },
+                { 
+                    id: 2, 
+                    name: 'Profissional Teste', 
+                    email: 'pro@example.com', 
+                    password: '123', 
+                    type: 'professional', 
+                    salonId: 1, 
+                    createdAt: new Date().toISOString() 
+                },
+                { 
+                    id: 3, 
+                    name: 'Admin Teste', 
+                    email: 'admin@example.com', 
+                    password: '123', 
+                    type: 'admin', 
+                    createdAt: new Date().toISOString() 
+                }
+            ],
+            
+            professionals: [
+                { 
+                    id: 1, 
+                    userId: 2, 
+                    salonId: 1, 
+                    name: 'João Silva', 
+                    specialty: 'Cabelereiro', 
+                    description: 'Especialista em cortes masculinos e barbas.', 
+                    services: ['Corte Masculino', 'Barba'], 
+                    rating: 4.9, 
+                    reviews: 128, 
+                    image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60', 
+                    price: '45,00 MT',
+                    status: 'approved'
+                }
+            ],
+            
+            salons: [
+                { 
+                    id: 1, 
+                    name: 'Salão do João', 
+                    location: 'Maputo', 
+                    address: 'Av. Julius Nyerere, 123', 
+                    phone: '+258 84 123 4567', 
+                    services: ['Corte Masculino', 'Barba'], 
+                    openingHours: { 
+                        opening: '09:00', 
+                        closing: '18:00' 
+                    }, 
+                    photos: [], 
+                    status: 'approved', 
+                    submittedAt: new Date().toISOString(), 
+                    approvedAt: new Date().toISOString() 
+                },
+                { 
+                    id: 2, 
+                    name: 'Beleza Total', 
+                    location: 'Matola', 
+                    address: 'Av. da Liberdade, 456', 
+                    phone: '+258 84 987 6543', 
+                    services: ['Corte Feminino', 'Coloração'], 
+                    openingHours: { 
+                        opening: '08:00', 
+                        closing: '19:00' 
+                    }, 
+                    photos: [], 
+                    status: 'pending', 
+                    submittedAt: new Date().toISOString() 
+                }
+            ],
+            
+            appointments: [
+                { 
+                    id: 1, 
+                    professionalId: 1, 
+                    clientName: 'Cliente Teste', 
+                    service: 'Corte Masculino', 
+                    date: new Date().toISOString(), 
+                    time: '14:00', 
+                    price: '45,00 MT', 
+                    status: 'confirmed', 
+                    code: 'WC001', 
+                    location: 'Maputo', 
+                    phone: '+258 84 123 4567', 
+                    address: 'Av. Julius Nyerere, 123', 
+                    image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60' 
+                }
+            ],
+
+            pendingRegistrations: [
+                { 
+                    id: 1, 
+                    professionalId: 1, 
+                    name: 'Profissional Pendente', 
+                    email: 'pending@example.com', 
+                    phone: '+258 84 999 9999', 
+                    salonName: 'Salão Pendente', 
+                    location: 'Matola', 
+                    address: 'Av. Central, 456', 
+                    specialty: 'Cabelereiro', 
+                    services: ['Corte Feminino'], 
+                    submittedAt: new Date().toISOString(), 
+                    status: 'pending' 
+                }
+            ]
+        };
+
+        // Funções de API simuladas
+        async function convexAuth(email, password) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const user = appState.users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                return {
+                    success: true,
+                    user: user
+                };
+            } else {
+                return {
+                    success: false,
+                    error: 'E-mail ou senha incorretos'
+                };
+            }
+        }
+
+        async function convexRegister(userData) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const existingUser = appState.users.find(u => u.email === userData.email);
+            if (existingUser) {
+                return {
+                    success: false,
+                    error: 'Este e-mail já está cadastrado'
+                };
+            }
+            
+            const newUser = {
+                id: appState.users.length + 1,
+                name: userData.name,
+                email: userData.email,
+                password: userData.password,
+                type: userData.type,
+                createdAt: new Date().toISOString()
+            };
+            
+            if (userData.type === 'professional') {
+                const newSalon = {
+                    id: appState.salons.length + 1,
+                    name: userData.salonData.name,
+                    location: userData.salonData.location,
+                    phone: userData.salonData.phone,
+                    address: userData.salonData.address,
+                    services: userData.salonData.services,
+                    openingHours: userData.salonData.openingHours,
+                    photos: userData.salonData.photos,
+                    status: 'pending',
+                    submittedAt: userData.salonData.submittedAt
+                };
+                
+                appState.salons.push(newSalon);
+                newUser.salonId = newSalon.id;
+                
+                const newProfessional = {
+                    id: appState.professionals.length + 1,
+                    userId: newUser.id,
+                    salonId: newSalon.id,
+                    name: userData.name,
+                    specialty: 'Profissional de Beleza',
+                    description: 'Novo profissional cadastrado',
+                    services: userData.salonData.services,
+                    rating: 0,
+                    reviews: 0,
+                    image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
+                    price: '45,00 MT',
+                    status: 'pending'
+                };
+                
+                appState.professionals.push(newProfessional);
+                
+                appState.pendingRegistrations.push({
+                    id: appState.pendingRegistrations.length + 1,
+                    professionalId: newProfessional.id,
+                    name: userData.name,
+                    email: userData.email,
+                    phone: userData.salonData.phone,
+                    salonName: userData.salonData.name,
+                    location: userData.salonData.location,
+                    address: userData.salonData.address,
+                    specialty: 'Profissional de Beleza',
+                    services: userData.salonData.services,
+                    submittedAt: new Date().toISOString(),
+                    status: 'pending'
+                });
+            }
+            
+            appState.users.push(newUser);
+            
+            return {
+                success: true,
+                user: newUser
+            };
+        }
+
+        async function convexApproveSalon(professionalId) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const professional = appState.professionals.find(p => p.id === professionalId);
+            const salon = appState.salons.find(s => s.id === professional.salonId);
+            const registration = appState.pendingRegistrations.find(reg => reg.professionalId === professionalId);
+            
+            if (professional && salon && registration) {
+                professional.status = 'approved';
+                salon.status = 'approved';
+                salon.approvedAt = new Date().toISOString();
+                registration.status = 'approved';
+                
+                return { success: true };
+            }
+            
+            return { success: false, error: 'Profissional não encontrado' };
+        }
+
+        async function convexUpdateAppointmentStatus(appointmentId, status) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            const appointment = appState.appointments.find(a => a.id === appointmentId);
+            if (appointment) {
+                appointment.status = status;
+                return { success: true };
+            }
+            
+            return { success: false, error: 'Agendamento não encontrado' };
+        }
+
+        // Funções de autenticação
+        async function handleLogin(event) {
+            if (event) event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const result = await convexAuth(email, password);
+            
+            if (result.success) {
+                appState.currentUser = result.user;
+                appState.userType = result.user.type;
+                
+                if (appState.userType === 'admin') {
+                    renderView('admin-dashboard-page');
+                } else if (appState.userType === 'professional') {
+                    const professional = appState.professionals.find(pro => pro.userId === result.user.id);
+                    if (professional && professional.status === 'approved') {
+                        renderView('professional-dashboard-page');
+                    } else {
+                        renderView('pending-approval-page');
+                    }
+                } else {
+                    renderView('search-page');
+                }
+                
+                updateAuthUI();
+            } else {
+                alert('Erro no login: ' + result.error);
+            }
+        }
+
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const userType = document.querySelector('input[name="userType"]:checked').value;
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            const userData = {
+                name,
+                email,
+                password,
+                type: userType
+            };
+
+            if (userType === 'professional') {
+                const salonData = {
+                    name: document.getElementById('salon-name').value,
+                    location: document.getElementById('salon-location').value,
+                    phone: document.getElementById('salon-phone').value,
+                    address: document.getElementById('salon-address').value,
+                    services: Array.from(document.querySelectorAll('.service-checkbox:checked')).map(cb => cb.value),
+                    openingHours: {
+                        opening: document.getElementById('opening-time').value,
+                        closing: document.getElementById('closing-time').value
+                    },
+                    photos: document.getElementById('salon-photos').value.split(',').map(url => url.trim()).filter(url => url),
+                    status: 'pending',
+                    submittedAt: new Date().toISOString()
+                };
+
+                userData.salonData = salonData;
+            }
+
+            const result = await convexRegister(userData);
+            
+            if (result.success) {
+                if (userType === 'professional') {
+                    renderView('pending-approval-page');
+                } else {
+                    alert('Cadastro realizado com sucesso! Faça login para continuar.');
+                    renderView('login-page');
+                }
+                
+                document.getElementById('register-form').reset();
+            } else {
+                alert('Erro no cadastro: ' + result.error);
+            }
+        }
+
+        function showRegisterForm() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+        }
+
+        function showLoginForm() {
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+        }
+
+        // Funções de navegação
+        function renderView(viewName) {
+            const pageContainer = document.getElementById('page-container');
+            const pageSections = document.querySelectorAll('.page-section');
+            
+            pageSections.forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('active-page');
+            });
+
+            let targetSection = document.getElementById(viewName);
+
+            if (!targetSection) {
+                targetSection = document.createElement('section');
+                targetSection.id = viewName;
+                targetSection.className = 'page-section';
+                pageContainer.appendChild(targetSection);
+            }
+
+            targetSection.innerHTML = getPageContent(viewName);
+            targetSection.classList.remove('hidden');
+            targetSection.classList.add('active-page');
+
+            appState.activeView = viewName;
+            updateActiveNavigation(viewName);
+            initViewListeners(viewName);
+            
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        function getPageContent(pageName) {
+            switch(pageName) {
+                case 'home-page':
+                    return document.getElementById('home-page').innerHTML;
+                case 'search-page':
+                    return document.getElementById('search-page').innerHTML;
+                case 'booking-page':
+                    return document.getElementById('booking-page').innerHTML;
+                case 'appointments-page':
+                    return document.getElementById('appointments-page').innerHTML;
+                case 'professional-dashboard-page':
+                    return document.getElementById('professional-dashboard-page').innerHTML;
+                case 'admin-dashboard-page':
+                    return document.getElementById('admin-dashboard-page').innerHTML;
+                case 'login-page':
+                    return document.getElementById('login-page').innerHTML;
+                case 'professional-profile-page':
+                    return document.getElementById('professional-profile-page').innerHTML;
+                case 'pending-approval-page':
+                    return document.getElementById('pending-approval-page').innerHTML;
+                default:
+                    return '<div class="p-8 text-center">Página não encontrada</div>';
+            }
+        }
+
+        function updateActiveNavigation(viewName) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-black', 'text-white');
+                link.classList.add('text-black', 'hover:bg-gray-50');
+                
+                if (link.dataset.view === viewName) {
+                    link.classList.remove('text-black', 'hover:bg-gray-50');
+                    link.classList.add('bg-black', 'text-white');
+                }
+            });
+        }
+
+        function initViewListeners(viewName) {
+            switch (viewName) {
+                case 'login-page':
+                case 'signup-page':
+                    initAuthListeners();
+                    break;
+                case 'admin-dashboard-page':
+                    initAdminDashboardListeners();
+                    break;
+                case 'professional-dashboard-page':
+                    initProfessionalDashboardListeners();
+                    break;
+                case 'booking-page':
+                    initBookingListeners();
+                    break;
+            }
+
+            initGlobalListeners();
+        }
+
+        function initAuthListeners() {
+            document.addEventListener('change', function(e) {
+                if (e.target.name === 'userType') {
+                    const professionalFields = document.getElementById('professional-fields');
+                    if (professionalFields) {
+                        professionalFields.classList.toggle('hidden', e.target.value !== 'professional');
+                    }
+                }
+            });
+        }
+
+        function initAdminDashboardListeners() {
+            // Listeners já estão implementados nos botões via onclick
+        }
+
+        function initProfessionalDashboardListeners() {
+            // Listeners já estão implementados nos botões via onclick
+        }
+
+        function initBookingListeners() {
+            // Atualizar resumo em tempo real
+            document.addEventListener('change', function() {
+                updateBookingSummary();
+            });
+        }
+
+        function initGlobalListeners() {
+            // Navegação por links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    const targetPage = this.getAttribute('data-view');
+                    renderView(targetPage);
+                });
+            });
+
+            // Logo - volta para home
+            document.getElementById('logo').addEventListener('click', () => {
+                renderView('home-page');
+            });
+
+            // Botões de autenticação
+            document.getElementById('login-btn').addEventListener('click', () => {
+                renderView('login-page');
+            });
+
+            document.getElementById('signup-btn').addEventListener('click', () => {
+                renderView('login-page');
+            });
+
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
+            // Botões com data-view
+            document.addEventListener('click', function(e) {
+                if (e.target.hasAttribute('data-view')) {
+                    const targetPage = e.target.getAttribute('data-view');
+                    renderView(targetPage);
+                }
+            });
+        }
+
+        function handleLogout() {
+            appState.currentUser = null;
+            appState.userType = 'client';
+            updateAuthUI();
+            renderView('home-page');
+        }
+
+        function updateAuthUI() {
+            const authButtons = document.getElementById('auth-buttons');
+            const userMenu = document.getElementById('user-menu');
+            const clientNav = document.getElementById('client-nav');
+            const professionalNav = document.getElementById('professional-nav');
+            const adminNav = document.getElementById('admin-nav');
+
+            if (appState.currentUser) {
+                authButtons.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                
+                document.getElementById('user-name').textContent = appState.currentUser.name;
+                
+                updateUserTypeNavigation();
+            } else {
+                authButtons.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+                clientNav.classList.remove('hidden');
+                professionalNav.classList.add('hidden');
+                adminNav.classList.add('hidden');
+            }
+        }
+
+        function updateUserTypeNavigation() {
+            const clientNav = document.getElementById('client-nav');
+            const professionalNav = document.getElementById('professional-nav');
+            const adminNav = document.getElementById('admin-nav');
+
+            clientNav.classList.add('hidden');
+            professionalNav.classList.add('hidden');
+            adminNav.classList.add('hidden');
+
+            if (appState.userType === 'client') {
+                clientNav.classList.remove('hidden');
+            } else if (appState.userType === 'professional') {
+                professionalNav.classList.remove('hidden');
+            } else if (appState.userType === 'admin') {
+                adminNav.classList.remove('hidden');
+            }
+        }
+
+        // Funções específicas de páginas
+        function performSearch() {
+            const searchTerm = document.getElementById('search-input').value;
+            alert(`Buscando por: ${searchTerm}`);
+        }
+
+        function showFilters() {
+            alert('Mostrar filtros de busca');
+        }
+
+        function viewProfessional(professionalId) {
+            appState.bookingProfessionalId = professionalId;
+            renderView('professional-profile-page');
+        }
+
+        function startBooking(professionalId) {
+            if (!appState.currentUser) {
+                alert('Por favor, faça login para agendar um serviço.');
+                renderView('login-page');
+                return;
+            }
+            appState.bookingProfessionalId = professionalId;
+            renderView('booking-page');
+        }
+
+        function confirmBooking(event) {
+            event.preventDefault();
+            
+            const service = document.getElementById('booking-service').value;
+            const date = document.getElementById('booking-date').value;
+            const time = document.getElementById('booking-time').value;
+            
+            if (!service || !date || !time) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            const newAppointment = {
+                id: appState.appointments.length + 1,
+                professionalId: 1,
+                clientName: appState.currentUser ? appState.currentUser.name : 'Cliente',
+                service: service,
+                date: new Date(date).toISOString(),
+                time: time,
+                price: getServicePrice(service),
+                status: 'confirmed',
+                code: 'WC' + (appState.appointments.length + 1).toString().padStart(3, '0'),
+                location: 'Maputo',
+                phone: '+258 84 123 4567',
+                address: 'Av. Julius Nyerere, 123 - Polana, Maputo',
+                image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60'
+            };
+            
+            appState.appointments.push(newAppointment);
+            
+            alert(`Agendamento confirmado! Código: ${newAppointment.code}`);
+            renderView('appointments-page');
+        }
+
+        function getServicePrice(service) {
+            const prices = {
+                'Corte Masculino': '1.800 MT',
+                'Barba': '1.000 MT',
+                'Corte + Barba': '2.400 MT'
+            };
+            return prices[service] || 'A combinar';
+        }
+
+        function updateBookingSummary() {
+            const service = document.getElementById('booking-service').value;
+            const date = document.getElementById('booking-date').value;
+            const time = document.getElementById('booking-time').value;
+
+            document.getElementById('summary-service').textContent = service || '-';
+            document.getElementById('summary-date').textContent = date ? new Date(date).toLocaleDateString('pt-BR') : '-';
+            document.getElementById('summary-time').textContent = time || '-';
+            document.getElementById('summary-price').textContent = getServicePrice(service) || '-';
+        }
+
+        function switchAppointmentTab(tab) {
+            alert(`Alternando para aba: ${tab}`);
+        }
+
+        function switchAdminTab(tab) {
+            appState.adminTab = tab;
+            renderView('admin-dashboard-page');
+        }
+
+        async function approveRegistration(registrationId) {
+            const registration = appState.pendingRegistrations.find(reg => reg.id === registrationId);
+            if (registration) {
+                const result = await convexApproveSalon(registration.professionalId);
+                if (result.success) {
+                    registration.status = 'approved';
+                    registration.approvedAt = new Date().toISOString();
+                    alert('Cadastro aprovado com sucesso!');
+                    renderView('admin-dashboard-page');
+                } else {
+                    alert('Erro ao aprovar cadastro: ' + result.error);
+                }
+            }
+        }
+
+        function openRejectModal(registrationId) {
+            document.getElementById('reject-registration-id').value = registrationId;
+            document.getElementById('reject-modal').classList.remove('hidden');
+        }
+
+        function closeRejectModal() {
+            document.getElementById('reject-modal').classList.add('hidden');
+        }
+
+        function handleRejectSubmission(event) {
+            event.preventDefault();
+            const registrationId = document.getElementById('reject-registration-id').value;
+            const reason = document.getElementById('reject-reason').value;
+            
+            const registration = appState.pendingRegistrations.find(reg => reg.id === parseInt(registrationId));
+            if (registration) {
+                registration.status = 'rejected';
+                registration.rejectionReason = reason;
+                alert('Cadastro rejeitado com sucesso!');
+                closeRejectModal();
+                renderView('admin-dashboard-page');
+            }
+        }
+
+        function viewSalonDetails(registrationId) {
+            const registration = appState.pendingRegistrations.find(reg => reg.id === registrationId);
+            if (!registration) return;
+
+            const modal = document.getElementById('salon-details-modal');
+            const title = document.getElementById('salon-details-title');
+            const content = document.getElementById('salon-details-content');
+
+            title.textContent = `Detalhes do Salão - ${registration.salonName}`;
+            
+            content.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-medium text-black mb-2">Informações do Salão</h4>
+                        <div class="space-y-2">
+                            <p><strong>Nome do Salão:</strong> ${registration.salonName}</p>
+                            <p><strong>Localização:</strong> ${registration.location}</p>
+                            <p><strong>Endereço:</strong> ${registration.address}</p>
+                            <p><strong>Telefone:</strong> ${registration.phone}</p>
+                            <p><strong>Especialidade:</strong> ${registration.specialty}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-black mb-2">Informações do Proprietário</h4>
+                        <div class="space-y-2">
+                            <p><strong>Nome:</strong> ${registration.name}</p>
+                            <p><strong>Email:</strong> ${registration.email}</p>
+                            <p><strong>Data de Envio:</strong> ${new Date(registration.submittedAt).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                    </div>
+                </div>
+                ${registration.services ? `
+                    <div class="mt-4">
+                        <h4 class="font-medium text-black mb-2">Serviços Oferecidos</h4>
+                        <div class="flex flex-wrap gap-2">
+                            ${registration.services.map(service => `
+                                <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm">${service}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+
+            const approveBtn = document.getElementById('approve-from-details');
+            const rejectBtn = document.getElementById('reject-from-details');
+
+            approveBtn.onclick = () => {
+                approveRegistration(registrationId);
+                closeSalonDetailsModal();
+            };
+
+            rejectBtn.onclick = () => {
+                openRejectModal(registrationId);
+                closeSalonDetailsModal();
+            };
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeSalonDetailsModal() {
+            document.getElementById('salon-details-modal').classList.add('hidden');
+        }
+
+        function deactivateSalon(professionalId) {
+            const professional = appState.professionals.find(pro => pro.id === professionalId);
+            if (professional) {
+                professional.status = 'inactive';
+                alert('Salão desativado com sucesso!');
+                renderView('admin-dashboard-page');
+            }
+        }
+
+        function switchProfessionalTab(tab) {
+            appState.professionalTab = tab;
+            renderView('professional-dashboard-page');
+        }
+
+        async function markAppointmentAsCompleted(appointmentId) {
+            try {
+                const result = await convexUpdateAppointmentStatus(appointmentId, 'completed');
+                if (result.success) {
+                    const appointment = appState.appointments.find(apt => apt.id === appointmentId);
+                    if (appointment) {
+                        appointment.status = 'completed';
+                    }
+                    alert('Agendamento marcado como concluído!');
+                    renderView('professional-dashboard-page');
+                }
+            } catch (error) {
+                alert('Erro ao atualizar agendamento: ' + error.message);
+            }
+        }
+
+        async function cancelAppointment(appointmentId) {
+            if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
+                try {
+                    const result = await convexUpdateAppointmentStatus(appointmentId, 'cancelled');
+                    if (result.success) {
+                        const appointment = appState.appointments.find(apt => apt.id === appointmentId);
+                        if (appointment) {
+                            appointment.status = 'cancelled';
+                        }
+                        alert('Agendamento cancelado!');
+                        renderView('professional-dashboard-page');
+                    }
+                } catch (error) {
+                    alert('Erro ao cancelar agendamento: ' + error.message);
+                }
+            }
+        }
+
+        function viewAppointmentDetails(appointmentId) {
+            const appointment = appState.appointments.find(apt => apt.id === appointmentId);
+            if (!appointment) return;
+            
+            alert(`Detalhes do agendamento: ${appointment.clientName} - ${appointment.service}`);
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+            
+            renderView('home-page');
+            updateAuthUI();
+        });
+
+        // Adicionar funções ao escopo global
+        window.handleLogin = handleLogin;
+        window.handleRegister = handleRegister;
+        window.showRegisterForm = showRegisterForm;
+        window.showLoginForm = showLoginForm;
+        window.renderView = renderView;
+        window.performSearch = performSearch;
+        window.showFilters = showFilters;
+        window.viewProfessional = viewProfessional;
+        window.startBooking = startBooking;
+        window.confirmBooking = confirmBooking;
+        window.switchAppointmentTab = switchAppointmentTab;
+        window.switchAdminTab = switchAdminTab;
+        window.approveRegistration = approveRegistration;
+        window.openRejectModal = openRejectModal;
+        window.closeRejectModal = closeRejectModal;
+        window.handleRejectSubmission = handleRejectSubmission;
+        window.viewSalonDetails = viewSalonDetails;
+        window.closeSalonDetailsModal = closeSalonDetailsModal;
+        window.deactivateSalon = deactivateSalon;
+        window.switchProfessionalTab = switchProfessionalTab;
+        window.markAppointmentAsCompleted = markAppointmentAsCompleted;
+        window.cancelAppointment = cancelAppointment;
+        window.viewAppointmentDetails = viewAppointmentDetails;
+    </script>
+</body>
+</html>
