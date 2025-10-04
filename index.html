@@ -271,7 +271,8 @@
             addSalon(salonData) {
                 const newSalon = {
                     id: Date.now(),
-                    ...salonData
+                    ...salonData,
+                    photos: salonData.photos || []
                 };
                 this.state.salons.push(newSalon);
                 this.saveState();
@@ -351,6 +352,28 @@
             // Verificar se email já existe
             userExists(email) {
                 return this.state.users.some(user => user.email === email);
+            }
+
+            // Método para atualizar salão existente
+            updateSalon(salonId, updates) {
+                const salonIndex = this.state.salons.findIndex(s => s.id === salonId);
+                if (salonIndex !== -1) {
+                    this.state.salons[salonIndex] = { ...this.state.salons[salonIndex], ...updates };
+                    this.saveState();
+                    return true;
+                }
+                return false;
+            }
+
+            // Método para atualizar profissional existente
+            updateProfessional(professionalId, updates) {
+                const proIndex = this.state.professionals.findIndex(p => p.id === professionalId);
+                if (proIndex !== -1) {
+                    this.state.professionals[proIndex] = { ...this.state.professionals[proIndex], ...updates };
+                    this.saveState();
+                    return true;
+                }
+                return false;
             }
         }
 
@@ -468,7 +491,7 @@
             }
         }
 
-        function handleRegister(event) {
+        async function handleRegister(event) {
             console.log('📝 Processando cadastro...');
             if (event) {
                 event.preventDefault();
@@ -504,13 +527,40 @@
                     const salonLocation = document.getElementById('salon-location')?.value;
                     const salonPhone = document.getElementById('salon-phone')?.value;
                     const salonAddress = document.getElementById('salon-address')?.value;
-                    const openingTime = document.getElementById('opening-time')?.value;
-                    const closingTime = document.getElementById('closing-time')?.value;
-                    const salonPhotos = document.getElementById('salon-photos')?.value.split(',').map(url => url.trim()).filter(url => url) || [];
 
                     if (!salonName || !salonLocation || !salonPhone || !salonAddress) {
                         alert('Por favor, preencha todos os campos obrigatórios do salão');
                         return;
+                    }
+
+                    // Coletar serviços selecionados (não obrigatórios)
+                    const selectedServices = Array.from(document.querySelectorAll('.service-checkbox:checked'))
+                        .map(checkbox => checkbox.value);
+                    
+                    // Coletar serviços personalizados
+                    const customServices = Array.from(document.querySelectorAll('#custom-services-list > div'))
+                        .map(div => div.querySelector('input[type="hidden"]').value);
+                    
+                    const allServices = [...selectedServices, ...customServices];
+
+                    // Processar fotos do salão
+                    const photoInput = document.getElementById('salon-photos');
+                    let salonPhotos = [];
+                    
+                    if (photoInput.files && photoInput.files.length > 0) {
+                        const files = Array.from(photoInput.files).slice(0, 5); // Limitar a 5 fotos
+                        
+                        // Converter fotos para Data URLs (simulação - em produção enviaria para servidor)
+                        for (const file of files) {
+                            if (file.type.startsWith('image/')) {
+                                const dataUrl = await new Promise((resolve) => {
+                                    const reader = new FileReader();
+                                    reader.onload = (e) => resolve(e.target.result);
+                                    reader.readAsDataURL(file);
+                                });
+                                salonPhotos.push(dataUrl);
+                            }
+                        }
                     }
 
                     const salonData = {
@@ -518,10 +568,10 @@
                         location: salonLocation,
                         phone: salonPhone,
                         address: salonAddress,
-                        services: Array.from(document.querySelectorAll('.service-checkbox:checked')).map(cb => cb.value),
+                        services: allServices,
                         openingHours: {
-                            opening: openingTime || '09:00',
-                            closing: closingTime || '18:00'
+                            opening: document.getElementById('opening-time')?.value || '09:00',
+                            closing: document.getElementById('closing-time')?.value || '18:00'
                         },
                         photos: salonPhotos,
                         submittedAt: new Date().toISOString()
@@ -537,9 +587,9 @@
                         userId: newUser.id,
                         salonId: newSalon.id,
                         name: userData.name,
-                        specialty: salonData.services[0] || 'Profissional de Beleza',
+                        specialty: allServices[0] || 'Profissional de Beleza',
                         description: 'Profissional cadastrado no sistema WeCut',
-                        services: salonData.services,
+                        services: allServices,
                         rating: 0,
                         reviews: 0,
                         image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
@@ -646,6 +696,92 @@
                 lucide.createIcons();
             }
         }
+
+        // Função para adicionar serviço personalizado
+        window.addCustomService = function() {
+            const customServiceInput = document.getElementById('custom-service');
+            const serviceName = customServiceInput.value.trim();
+            
+            if (serviceName) {
+                const customServicesList = document.getElementById('custom-services-list');
+                const serviceId = 'custom-' + Date.now();
+                
+                const serviceElement = document.createElement('div');
+                serviceElement.className = 'flex items-center bg-gray-100 px-3 py-1 rounded-full';
+                serviceElement.innerHTML = `
+                    <span class="text-sm mr-2">${serviceName}</span>
+                    <button type="button" onclick="removeCustomService('${serviceId}')" class="text-red-500 hover:text-red-700">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                    <input type="hidden" name="custom-services" value="${serviceName}">
+                `;
+                serviceElement.id = serviceId;
+                
+                customServicesList.appendChild(serviceElement);
+                customServiceInput.value = '';
+                
+                // Atualizar ícones
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            }
+        };
+
+        // Função para remover serviço personalizado
+        window.removeCustomService = function(serviceId) {
+            const serviceElement = document.getElementById(serviceId);
+            if (serviceElement) {
+                serviceElement.remove();
+            }
+        };
+
+        // Função para lidar com upload de fotos
+        window.handlePhotoUpload = function(input) {
+            const preview = document.getElementById('photo-preview');
+            preview.innerHTML = '';
+            
+            if (input.files && input.files.length > 0) {
+                const files = Array.from(input.files).slice(0, 5); // Limitar a 5 fotos
+                
+                files.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const imgContainer = document.createElement('div');
+                            imgContainer.className = 'relative';
+                            imgContainer.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview" class="w-full h-24 object-cover rounded-lg">
+                                <button type="button" onclick="removePhoto(this)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1">
+                                    <i data-lucide="x" class="w-3 h-3"></i>
+                                </button>
+                            `;
+                            preview.appendChild(imgContainer);
+                            
+                            // Atualizar ícones
+                            if (window.lucide) {
+                                lucide.createIcons();
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        };
+
+        // Função para remover foto do preview
+        window.removePhoto = function(button) {
+            button.closest('.relative').remove();
+        };
+
+        // Inicializar listeners para upload de fotos
+        document.addEventListener('DOMContentLoaded', function() {
+            const photoInput = document.getElementById('salon-photos');
+            if (photoInput) {
+                photoInput.addEventListener('change', function() {
+                    handlePhotoUpload(this);
+                });
+            }
+        });
 
         // Views
         function getHomePageContent() {
@@ -1068,7 +1204,7 @@
                             </form>
 
                             <!-- Registration Form -->
-                            <form id="register-form" class="hidden space-y-6 mt-6" onsubmit="handleRegister(event)">
+                            <div id="register-form" class="hidden space-y-6 mt-6">
                                 <div>
                                     <label class="block text-black mb-3">Tipo de conta</label>
                                     <div class="grid grid-cols-2 gap-4">
@@ -1107,10 +1243,10 @@
                                     <textarea id="salon-address" placeholder="Endereço completo do salão" 
                                               class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"></textarea>
                                     
-                                    <!-- Serviços oferecidos -->
+                                    <!-- Serviços oferecidos - NÃO OBRIGATÓRIOS -->
                                     <div>
-                                        <label class="block text-sm font-medium text-black mb-2">Serviços Oferecidos</label>
-                                        <div class="grid grid-cols-2 gap-2">
+                                        <label class="block text-sm font-medium text-black mb-2">Serviços Oferecidos (opcional)</label>
+                                        <div class="grid grid-cols-2 gap-2 mb-3">
                                             <label class="flex items-center">
                                                 <input type="checkbox" value="Corte Masculino" class="mr-2 service-checkbox">
                                                 <span class="text-sm">Corte Masculino</span>
@@ -1136,6 +1272,17 @@
                                                 <span class="text-sm">Pedicure</span>
                                             </label>
                                         </div>
+                                        
+                                        <!-- Campo para serviço personalizado -->
+                                        <div class="flex gap-2">
+                                            <input type="text" id="custom-service" placeholder="Adicionar serviço personalizado" 
+                                                   class="flex-1 p-2 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                            <button type="button" onclick="addCustomService()" 
+                                                    class="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 wecut-button-hover">
+                                                Adicionar
+                                            </button>
+                                        </div>
+                                        <div id="custom-services-list" class="flex flex-wrap gap-2 mt-2"></div>
                                     </div>
                                     
                                     <!-- Horário de funcionamento -->
@@ -1154,17 +1301,17 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Upload de fotos (simulado) -->
+                                    <!-- Upload de fotos via input file -->
                                     <div>
-                                        <label class="block text-sm font-medium text-black mb-2">Fotos do Salão (URLs separadas por vírgula)</label>
-                                        <textarea id="salon-photos" placeholder="https://exemplo.com/foto1.jpg, https://exemplo.com/foto2.jpg" 
-                                                  class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
-                                                  rows="2"></textarea>
-                                        <p class="text-xs text-gray-500 mt-1">Forneça URLs separadas por vírgula para simular o upload de fotos</p>
+                                        <label class="block text-sm font-medium text-black mb-2">Fotos do Salão</label>
+                                        <input type="file" id="salon-photos" multiple accept="image/*" 
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                        <p class="text-xs text-gray-500 mt-1">Selecione as fotos do seu salão (máx. 5 fotos)</p>
+                                        <div id="photo-preview" class="grid grid-cols-2 gap-2 mt-3"></div>
                                     </div>
                                 </div>
 
-                                <button type="submit" 
+                                <button type="button" onclick="handleRegister()" 
                                         class="w-full bg-green-600 text-white hover:bg-green-700 py-3 rounded-lg wecut-button-hover">
                                     Cadastrar
                                 </button>
@@ -1175,7 +1322,7 @@
                                         Já tem conta? Fazer login
                                     </button>
                                 </div>
-                            </form>
+                            </div>
                         </div>
 
                         <!-- AVISO DE SEGURANÇA -->
@@ -1684,6 +1831,7 @@
 
         function getProfessionalDashboardContent() {
             const professional = stateManager.state.professionals.find(p => p.userId === stateManager.state.currentUser?.id);
+            const salon = stateManager.state.salons.find(s => s.userId === stateManager.state.currentUser?.id);
             const appointments = stateManager.getProfessionalAppointments(professional?.id);
             const pendingAppointments = appointments.filter(apt => apt.status === 'pending');
             
@@ -1692,8 +1840,26 @@
                     <div class="max-w-7xl mx-auto px-4 py-8">
                         <!-- Header -->
                         <div class="mb-8">
-                            <h1 class="text-3xl font-bold text-gray-900">Dashboard Profissional</h1>
-                            <p class="text-gray-600">Gerencie seus agendamentos e serviços</p>
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h1 class="text-3xl font-bold text-gray-900">Dashboard Profissional</h1>
+                                    <p class="text-gray-600">Gerencie seus agendamentos e serviços</p>
+                                </div>
+                                
+                                <!-- Botões de perfil -->
+                                <div class="flex gap-3">
+                                    <button onclick="viewProfessionalProfile()" 
+                                            class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg wecut-button-hover flex items-center">
+                                        <i data-lucide="eye" class="w-4 h-4 mr-2"></i>
+                                        Ver Perfil
+                                    </button>
+                                    <button onclick="editProfessionalProfile()" 
+                                            class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg wecut-button-hover flex items-center">
+                                        <i data-lucide="edit" class="w-4 h-4 mr-2"></i>
+                                        Editar Perfil
+                                    </button>
+                                </div>
+                            </div>
                             
                             <!-- Banner de Status -->
                             <div class="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
@@ -2212,36 +2378,489 @@
             document.getElementById('professional-details-modal').classList.add('hidden');
         }
 
-        function initAdminDashboardListeners() {
-            // Listeners para abas
-            document.getElementById('professionals-tab')?.addEventListener('click', () => {
-                switchAdminTab('professionals');
-            });
+        // Função para visualizar perfil do profissional
+        window.viewProfessionalProfile = function() {
+            const professional = stateManager.state.professionals.find(p => p.userId === stateManager.state.currentUser.id);
+            const salon = stateManager.state.salons.find(s => s.userId === stateManager.state.currentUser.id);
+            const user = stateManager.state.users.find(u => u.id === stateManager.state.currentUser.id);
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-black">Meu Perfil</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">
+                            <i data-lucide="x" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Informações Pessoais -->
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="text-lg font-semibold text-black mb-4 border-b pb-2">Informações Pessoais</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Nome Completo</label>
+                                        <p class="text-black">${professional?.name || 'Não informado'}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">E-mail</label>
+                                        <p class="text-black">${user?.email || 'Não informado'}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Especialidade</label>
+                                        <p class="text-black">${professional?.specialty || 'Não informado'}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Descrição</label>
+                                        <p class="text-black">${professional?.description || 'Não informado'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Serviços -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-black mb-4 border-b pb-2">Serviços Oferecidos</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${professional?.services && professional.services.length > 0 
+                                        ? professional.services.map(service => `
+                                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">${service}</span>
+                                        `).join('')
+                                        : '<p class="text-gray-500">Nenhum serviço cadastrado</p>'
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Informações do Salão -->
+                        <div class="space-y-6">
+                            <div>
+                                <h4 class="text-lg font-semibold text-black mb-4 border-b pb-2">Informações do Salão</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Nome do Salão</label>
+                                        <p class="text-black">${salon?.name || 'Não informado'}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Localização</label>
+                                        <p class="text-black">${salon?.location || 'Não informado'}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Endereço</label>
+                                        <p class="text-black">${salon?.address || 'Não informado'}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Telefone</label>
+                                        <p class="text-black">${salon?.phone || 'Não informado'}</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700">Horário de Funcionamento</label>
+                                        <p class="text-black">${salon?.openingHours?.opening || '09:00'} - ${salon?.openingHours?.closing || '18:00'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Fotos do Salão -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-black mb-4 border-b pb-2">Fotos do Salão</h4>
+                                ${salon?.photos && salon.photos.length > 0 
+                                    ? `<div class="grid grid-cols-2 gap-4">
+                                        ${salon.photos.map(photo => `
+                                            <img src="${photo}" alt="Foto do salão" class="w-full h-32 object-cover rounded-lg">
+                                        `).join('')}
+                                       </div>`
+                                    : '<p class="text-gray-500">Nenhuma foto cadastrada</p>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 flex justify-end">
+                        <button onclick="this.closest('.fixed').remove()" 
+                                class="bg-gray-500 text-white hover:bg-gray-600 px-6 py-2 rounded-lg wecut-button-hover">
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+            `;
             
-            document.getElementById('appointments-tab')?.addEventListener('click', () => {
-                switchAdminTab('appointments');
-            });
-            
-            // Listeners para botões
-            document.querySelectorAll('.view-professional-details-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const professionalId = parseInt(e.target.closest('button').dataset.professionalId);
-                    viewProfessionalDetails(professionalId);
-                });
-            });
-            
-            document.querySelectorAll('.remove-professional-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const professionalId = parseInt(e.target.closest('button').dataset.professionalId);
-                    removeProfessional(professionalId);
-                });
-            });
+            document.body.appendChild(modal);
             
             // Atualizar ícones
             if (window.lucide) {
                 lucide.createIcons();
             }
-        }
+        };
+
+        // Função para editar perfil do profissional
+        window.editProfessionalProfile = function() {
+            const professional = stateManager.state.professionals.find(p => p.userId === stateManager.state.currentUser.id);
+            const salon = stateManager.state.salons.find(s => s.userId === stateManager.state.currentUser.id);
+            const user = stateManager.state.users.find(u => u.id === stateManager.state.currentUser.id);
+
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-black">Editar Perfil</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700">
+                            <i data-lucide="x" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                    
+                    <form id="edit-profile-form" onsubmit="saveProfileChanges(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Informações Pessoais -->
+                            <div class="space-y-4">
+                                <h4 class="text-lg font-semibold text-black mb-4 border-b pb-2">Informações Pessoais</h4>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-black mb-2">Nome Completo</label>
+                                    <input type="text" id="edit-name" value="${professional?.name || ''}" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-black mb-2">E-mail</label>
+                                    <input type="email" id="edit-email" value="${user?.email || ''}" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-black mb-2">Especialidade</label>
+                                    <input type="text" id="edit-specialty" value="${professional?.specialty || ''}" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-black mb-2">Descrição</label>
+                                    <textarea id="edit-description" rows="3"
+                                              class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">${professional?.description || ''}</textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- Informações do Salão -->
+                            <div class="space-y-4">
+                                <h4 class="text-lg font-semibold text-black mb-4 border-b pb-2">Informações do Salão</h4>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-black mb-2">Nome do Salão</label>
+                                    <input type="text" id="edit-salon-name" value="${salon?.name || ''}" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-black mb-2">Localização</label>
+                                    <input type="text" id="edit-salon-location" value="${salon?.location || ''}" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-black mb-2">Endereço</label>
+                                    <textarea id="edit-salon-address" rows="2"
+                                              class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">${salon?.address || ''}</textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-black mb-2">Telefone</label>
+                                    <input type="tel" id="edit-salon-phone" value="${salon?.phone || ''}" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-black mb-2">Horário de Abertura</label>
+                                        <input type="time" id="edit-opening-time" 
+                                               value="${salon?.openingHours?.opening || '09:00'}"
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-black mb-2">Horário de Fechamento</label>
+                                        <input type="time" id="edit-closing-time" 
+                                               value="${salon?.openingHours?.closing || '18:00'}"
+                                               class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Serviços Oferecidos -->
+                        <div class="mt-6">
+                            <h4 class="text-lg font-semibold text-black mb-4 border-b pb-2">Serviços Oferecidos</h4>
+                            
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="Corte Masculino" class="mr-2 edit-service-checkbox" 
+                                           ${professional?.services?.includes('Corte Masculino') ? 'checked' : ''}>
+                                    <span class="text-sm">Corte Masculino</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="Corte Feminino" class="mr-2 edit-service-checkbox"
+                                           ${professional?.services?.includes('Corte Feminino') ? 'checked' : ''}>
+                                    <span class="text-sm">Corte Feminino</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="Barba" class="mr-2 edit-service-checkbox"
+                                           ${professional?.services?.includes('Barba') ? 'checked' : ''}>
+                                    <span class="text-sm">Barba</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="Coloração" class="mr-2 edit-service-checkbox"
+                                           ${professional?.services?.includes('Coloração') ? 'checked' : ''}>
+                                    <span class="text-sm">Coloração</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="Manicure" class="mr-2 edit-service-checkbox"
+                                           ${professional?.services?.includes('Manicure') ? 'checked' : ''}>
+                                    <span class="text-sm">Manicure</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" value="Pedicure" class="mr-2 edit-service-checkbox"
+                                           ${professional?.services?.includes('Pedicure') ? 'checked' : ''}>
+                                    <span class="text-sm">Pedicure</span>
+                                </label>
+                            </div>
+                            
+                            <!-- Campo para serviço personalizado -->
+                            <div class="flex gap-2 mb-2">
+                                <input type="text" id="edit-custom-service" placeholder="Adicionar serviço personalizado" 
+                                       class="flex-1 p-2 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                <button type="button" onclick="addEditCustomService()" 
+                                        class="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 wecut-button-hover">
+                                    Adicionar
+                                </button>
+                            </div>
+                            <div id="edit-custom-services-list" class="flex flex-wrap gap-2">
+                                ${professional?.services?.filter(service => 
+                                    !['Corte Masculino', 'Corte Feminino', 'Barba', 'Coloração', 'Manicure', 'Pedicure'].includes(service)
+                                ).map(service => `
+                                    <div class="flex items-center bg-gray-100 px-3 py-1 rounded-full">
+                                        <span class="text-sm mr-2">${service}</span>
+                                        <button type="button" onclick="removeEditCustomService('${service}')" class="text-red-500 hover:text-red-700">
+                                            <i data-lucide="x" class="w-3 h-3"></i>
+                                        </button>
+                                    </div>
+                                `).join('') || ''}
+                            </div>
+                        </div>
+                        
+                        <!-- Fotos do Salão -->
+                        <div class="mt-6">
+                            <h4 class="text-lg font-semibold text-black mb-4 border-b pb-2">Fotos do Salão</h4>
+                            
+                            <div class="mb-4">
+                                <input type="file" id="edit-salon-photos" multiple accept="image/*" 
+                                       class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                <p class="text-xs text-gray-500 mt-1">Selecione novas fotos para adicionar (máx. 5 fotos)</p>
+                            </div>
+                            
+                            <div id="edit-photo-preview" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                                ${salon?.photos?.map((photo, index) => `
+                                    <div class="relative">
+                                        <img src="${photo}" alt="Foto do salão" class="w-full h-32 object-cover rounded-lg">
+                                        <button type="button" onclick="removeExistingPhoto(${index})" 
+                                                class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1">
+                                            <i data-lucide="x" class="w-3 h-3"></i>
+                                        </button>
+                                    </div>
+                                `).join('') || ''}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 flex justify-end space-x-3">
+                            <button type="button" onclick="this.closest('.fixed').remove()" 
+                                    class="border border-gray-300 hover:bg-gray-50 px-6 py-2 rounded-lg wecut-button-hover">
+                                Cancelar
+                            </button>
+                            <button type="submit" 
+                                    class="bg-black text-white hover:bg-gray-800 px-6 py-2 rounded-lg wecut-button-hover">
+                                Salvar Alterações
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Inicializar listeners para upload de fotos
+            const photoInput = document.getElementById('edit-salon-photos');
+            if (photoInput) {
+                photoInput.addEventListener('change', function() {
+                    handleEditPhotoUpload(this);
+                });
+            }
+            
+            // Atualizar ícones
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        };
+
+        // Função para adicionar serviço personalizado no editor
+        window.addEditCustomService = function() {
+            const customServiceInput = document.getElementById('edit-custom-service');
+            const serviceName = customServiceInput.value.trim();
+            
+            if (serviceName) {
+                const customServicesList = document.getElementById('edit-custom-services-list');
+                
+                const serviceElement = document.createElement('div');
+                serviceElement.className = 'flex items-center bg-gray-100 px-3 py-1 rounded-full';
+                serviceElement.innerHTML = `
+                    <span class="text-sm mr-2">${serviceName}</span>
+                    <button type="button" onclick="removeEditCustomService('${serviceName}')" class="text-red-500 hover:text-red-700">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </button>
+                `;
+                
+                customServicesList.appendChild(serviceElement);
+                customServiceInput.value = '';
+                
+                // Atualizar ícones
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            }
+        };
+
+        // Função para remover serviço personalizado no editor
+        window.removeEditCustomService = function(serviceName) {
+            const elements = document.querySelectorAll('#edit-custom-services-list > div');
+            elements.forEach(element => {
+                if (element.textContent.includes(serviceName)) {
+                    element.remove();
+                }
+            });
+        };
+
+        // Função para lidar com upload de fotos no editor
+        window.handleEditPhotoUpload = function(input) {
+            const preview = document.getElementById('edit-photo-preview');
+            
+            if (input.files && input.files.length > 0) {
+                const files = Array.from(input.files).slice(0, 5); // Limitar a 5 fotos
+                
+                files.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const imgContainer = document.createElement('div');
+                            imgContainer.className = 'relative';
+                            imgContainer.innerHTML = `
+                                <img src="${e.target.result}" alt="Preview" class="w-full h-32 object-cover rounded-lg">
+                                <button type="button" onclick="removeEditPhoto(this)" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1">
+                                    <i data-lucide="x" class="w-3 h-3"></i>
+                                </button>
+                            `;
+                            preview.appendChild(imgContainer);
+                            
+                            // Atualizar ícones
+                            if (window.lucide) {
+                                lucide.createIcons();
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        };
+
+        // Função para remover foto do preview no editor
+        window.removeEditPhoto = function(button) {
+            button.closest('.relative').remove();
+        };
+
+        // Função para remover foto existente
+        window.removeExistingPhoto = function(index) {
+            const salon = stateManager.state.salons.find(s => s.userId === stateManager.state.currentUser.id);
+            if (salon && salon.photos) {
+                salon.photos.splice(index, 1);
+                stateManager.saveState();
+                
+                // Recarregar o modal de edição
+                document.querySelector('.fixed').remove();
+                editProfessionalProfile();
+            }
+        };
+
+        // Função para salvar alterações do perfil
+        window.saveProfileChanges = function(event) {
+            event.preventDefault();
+            
+            const professional = stateManager.state.professionals.find(p => p.userId === stateManager.state.currentUser.id);
+            const salon = stateManager.state.salons.find(s => s.userId === stateManager.state.currentUser.id);
+            const user = stateManager.state.users.find(u => u.id === stateManager.state.currentUser.id);
+            
+            // Atualizar informações pessoais
+            if (professional) {
+                professional.name = document.getElementById('edit-name').value;
+                professional.specialty = document.getElementById('edit-specialty').value;
+                professional.description = document.getElementById('edit-description').value;
+                
+                // Atualizar serviços
+                const selectedServices = Array.from(document.querySelectorAll('.edit-service-checkbox:checked'))
+                    .map(checkbox => checkbox.value);
+                
+                const customServices = Array.from(document.querySelectorAll('#edit-custom-services-list > div'))
+                    .map(div => div.querySelector('span').textContent.trim());
+                
+                professional.services = [...selectedServices, ...customServices];
+            }
+            
+            // Atualizar informações do salão
+            if (salon) {
+                salon.name = document.getElementById('edit-salon-name').value;
+                salon.location = document.getElementById('edit-salon-location').value;
+                salon.address = document.getElementById('edit-salon-address').value;
+                salon.phone = document.getElementById('edit-salon-phone').value;
+                salon.openingHours = {
+                    opening: document.getElementById('edit-opening-time').value,
+                    closing: document.getElementById('edit-closing-time').value
+                };
+                
+                // Processar novas fotos
+                const photoInput = document.getElementById('edit-salon-photos');
+                if (photoInput.files && photoInput.files.length > 0) {
+                    const files = Array.from(photoInput.files).slice(0, 5);
+                    const newPhotos = [];
+                    
+                    // Simular processamento de fotos (em produção, enviaria para servidor)
+                    files.forEach(file => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                newPhotos.push(e.target.result);
+                                
+                                // Quando todas as fotos forem processadas, atualizar o estado
+                                if (newPhotos.length === files.length) {
+                                    salon.photos = [...(salon.photos || []), ...newPhotos].slice(0, 5); // Limitar a 5 fotos
+                                    stateManager.saveState();
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+            }
+            
+            // Atualizar email do usuário
+            if (user) {
+                user.email = document.getElementById('edit-email').value;
+            }
+            
+            // Salvar estado
+            stateManager.saveState();
+            
+            alert('Perfil atualizado com sucesso!');
+            document.querySelector('.fixed').remove();
+            
+            // Recarregar o dashboard para refletir as mudanças
+            renderView('professional-dashboard-page');
+        };
 
         // Função principal de renderização
         window.renderView = function(viewName) {
