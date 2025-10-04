@@ -1,9 +1,9 @@
 // js/views/booking.js
-import { appState } from '../state/appState.js';
+import { stateManager } from '../state/stateManager.js';
 import { renderView } from '../main.js';
 
 export function getBookingPageContent() {
-    const professional = appState.professionals[0]; // Para simplificar, pegamos o primeiro profissional
+    const professional = stateManager.state.professionals.find(p => p.id === stateManager.state.bookingProfessionalId) || stateManager.state.professionals[0];
     
     return `
         <div class="min-h-screen bg-white">
@@ -151,32 +151,32 @@ export function confirmBooking(event) {
     const service = document.getElementById('booking-service').value;
     const date = document.getElementById('booking-date').value;
     const time = document.getElementById('booking-time').value;
+    const notes = document.getElementById('booking-notes').value;
     
     if (!service || !date || !time) {
         alert('Por favor, preencha todos os campos obrigatórios.');
         return;
     }
     
-    // Simular criação de agendamento
+    // Criar agendamento com status PENDENTE
     const newAppointment = {
-        id: appState.appointments.length + 1,
-        professionalId: 1,
-        clientName: appState.currentUser ? appState.currentUser.name : 'Cliente',
+        professionalId: stateManager.state.bookingProfessionalId || 1,
+        clientName: stateManager.state.currentUser ? stateManager.state.currentUser.name : 'Cliente',
         service: service,
         date: new Date(date).toISOString(),
         time: time,
         price: getServicePrice(service),
-        status: 'confirmed',
-        code: 'WC' + (appState.appointments.length + 1).toString().padStart(3, '0'),
+        status: 'pending', // AGORA COMEÇA COMO PENDENTE
+        notes: notes,
         location: 'Maputo',
         phone: '+258 84 123 4567',
         address: 'Av. Julius Nyerere, 123 - Polana, Maputo',
         image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60'
     };
     
-    appState.appointments.push(newAppointment);
+    stateManager.addAppointment(newAppointment);
     
-    alert(`Agendamento confirmado! Código: ${newAppointment.code}`);
+    alert(`📅 Agendamento solicitado! Código: ${newAppointment.code}\n\nO profissional será notificado e você receberá uma confirmação em breve.`);
     renderView('appointments-page');
 }
 

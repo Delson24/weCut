@@ -1,91 +1,152 @@
 // js/views/auth.js
-import { appState } from '../state/appState.js';
+import { stateManager } from '../state/stateManager.js';
 import { renderView } from '../main.js';
-import { convexAuth, convexRegister } from '../services/api.js';
+
+// AVISO: Em produção, substituir por chamadas API backend
+const DEMO_PASSWORDS = {
+    'client@example.com': 'client123',
+    'pro@example.com': 'pro123', 
+    'admin@example.com': 'admin123'
+};
 
 export async function handleLogin(event) {
+    console.log('🔐 handleLogin executado');
     if (event) event.preventDefault();
     
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    const email = document.getElementById('email')?.value;
+    const password = document.getElementById('password')?.value;
 
-    const result = await convexAuth(email, password);
-    
-    if (result.success) {
-        appState.currentUser = result.user;
-        appState.userType = result.user.type;
+    if (!email || !password) {
+        alert('Por favor, preencha todos os campos');
+        return;
+    }
+
+    try {
+        // Buscar usuário no estado local
+        const user = stateManager.state.users.find(u => u.email === email);
         
-        // Redirecionamento inteligente baseado no tipo de usuário
-        if (appState.userType === 'admin') {
-            renderView('admin-dashboard-page');
-        } else if (appState.userType === 'professional') {
-            // Verificar se o profissional está aprovado
-            const professional = appState.professionals.find(pro => pro.userId === result.user.id);
-            if (professional && professional.status === 'approved') {
-                renderView('professional-dashboard-page');
+        if (user) {
+            // Verificar senha (simulação - em produção seria no backend)
+            const expectedPassword = DEMO_PASSWORDS[email];
+            if (expectedPassword && password === expectedPassword) {
+                stateManager.setCurrentUser(user);
+                
+                // Redirecionamento baseado no tipo de usuário
+                if (user.type === 'admin') {
+                    renderView('admin-dashboard-page');
+                } else if (user.type === 'professional') {
+                    renderView('professional-dashboard-page');
+                } else {
+                    renderView('search-page');
+                }
+                
+                updateAuthUI();
+                alert(`✅ Login realizado com sucesso! Bem-vindo(a), ${user.name}`);
             } else {
-                renderView('pending-approval-page');
+                alert('E-mail ou senha incorretos');
             }
         } else {
-            renderView('search-page');
+            alert('E-mail ou senha incorretos');
         }
-        
-        updateAuthUI();
-    } else {
-        alert('Erro no login: ' + result.error);
+    } catch (error) {
+        console.error('Erro no login:', error);
+        alert('Erro ao fazer login. Tente novamente.');
     }
 }
 
 export async function handleRegister(event) {
-    event.preventDefault();
+    console.log('📝 handleRegister executado');
+    if (event) event.preventDefault();
     
-    const userType = document.querySelector('input[name="userType"]:checked').value;
-    const name = document.getElementById('register-name').value;
-    const email = document.getElementById('register-email').value;
-    const password = document.getElementById('register-password').value;
+    const userType = document.querySelector('input[name="userType"]:checked')?.value;
+    const name = document.getElementById('register-name')?.value;
+    const email = document.getElementById('register-email')?.value;
+    const password = document.getElementById('register-password')?.value;
 
-    const userData = {
-        name,
-        email,
-        password,
-        type: userType
-    };
-
-    if (userType === 'professional') {
-        // Coletar dados adicionais do profissional
-        const salonData = {
-            name: document.getElementById('salon-name').value,
-            location: document.getElementById('salon-location').value,
-            phone: document.getElementById('salon-phone').value,
-            address: document.getElementById('salon-address').value,
-            services: Array.from(document.querySelectorAll('.service-checkbox:checked')).map(cb => cb.value),
-            openingHours: {
-                opening: document.getElementById('opening-time').value,
-                closing: document.getElementById('closing-time').value
-            },
-            photos: document.getElementById('salon-photos').value.split(',').map(url => url.trim()).filter(url => url),
-            status: 'pending',
-            submittedAt: new Date().toISOString()
-        };
-
-        userData.salonData = salonData;
+    if (!name || !email || !password) {
+        alert('Por favor, preencha todos os campos obrigatórios');
+        return;
     }
 
-    const result = await convexRegister(userData);
-    
-    if (result.success) {
+    // Verificar se email já existe
+    if (stateManager.state.users.find(u => u.email === email)) {
+        alert('Este e-mail já está cadastrado');
+        return;
+    }
+
+    try {
+        const userData = {
+            name,
+            email,
+            type: userType,
+            password: password // Adicionar senha ao usuário
+        };
+
         if (userType === 'professional') {
-            // Redirecionar para página de aguardando aprovação
-            renderView('pending-approval-page');
+            const salonName = document.getElementById('salon-name')?.value;
+            const salonLocation = document.getElementById('salon-location')?.value;
+            const salonPhone = document.getElementById('salon-phone')?.value;
+            const salonAddress = document.getElementById('salon-address')?.value;
+
+            if (!salonName || !salonLocation || !salonPhone || !salonAddress) {
+                alert('Por favor, preencha todos os campos obrigatórios do salão');
+                return;
+            }
+
+            const salonData = {
+                name: salonName,
+                location: salonLocation,
+                phone: salonPhone,
+                address: salonAddress,
+                services: Array.from(document.querySelectorAll('.service-checkbox:checked')).map(cb => cb.value),
+                openingHours: {
+                    opening: document.getElementById('opening-time')?.value || '09:00',
+                    closing: document.getElementById('closing-time')?.value || '18:00'
+                },
+                photos: document.getElementById('salon-photos')?.value.split(',').map(url => url.trim()).filter(url => url) || [],
+                submittedAt: new Date().toISOString()
+            };
+
+            // CADASTRO AUTOMÁTICO
+            const newUser = stateManager.addUser(userData);
+            const newSalon = stateManager.addSalon({
+                ...salonData,
+                userId: newUser.id
+            });
+            
+            stateManager.addProfessional({
+                userId: newUser.id,
+                salonId: newSalon.id,
+                name: userData.name,
+                specialty: salonData.services[0] || 'Profissional de Beleza',
+                description: 'Profissional cadastrado no sistema WeCut',
+                services: salonData.services,
+                rating: 0,
+                reviews: 0,
+                image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
+                price: '45,00 MT',
+                location: salonData.location,
+                status: 'approved'
+            });
+
+            stateManager.setCurrentUser(newUser);
+            
+            alert('✅ Cadastro realizado com sucesso! Seu perfil já está ativo.');
+            renderView('professional-dashboard-page');
+            
         } else {
-            alert('Cadastro realizado com sucesso! Faça login para continuar.');
-            renderView('login-page');
+            const newUser = stateManager.addUser(userData);
+            stateManager.setCurrentUser(newUser);
+            alert('✅ Cadastro realizado com sucesso!');
+            renderView('search-page');
         }
+
+        const registerForm = document.getElementById('register-form');
+        if (registerForm) registerForm.reset();
         
-        // Limpar formulário
-        document.getElementById('register-form').reset();
-    } else {
-        alert('Erro no cadastro: ' + result.error);
+    } catch (error) {
+        console.error('Erro no cadastro:', error);
+        alert('Erro ao realizar cadastro. Tente novamente.');
     }
 }
 
@@ -110,7 +171,7 @@ export function getLoginPageContent() {
                 <div class="border border-gray-300 rounded-lg wecut-shadow p-6">
                     <h2 class="text-2xl text-center text-black mb-6">Fazer Login</h2>
                     
-                    <form id="login-form" onsubmit="handleLogin(event)" class="space-y-6">
+                    <form id="login-form" class="space-y-6">
                         <div>
                             <label for="email" class="block text-black mb-2">E-mail</label>
                             <input type="email" id="email" required
@@ -125,7 +186,7 @@ export function getLoginPageContent() {
                                    placeholder="••••••••">
                         </div>
 
-                        <button type="submit" 
+                        <button type="button" onclick="handleLogin()" 
                                 class="w-full bg-black text-white hover:bg-gray-800 py-3 rounded-lg wecut-button-hover">
                             Entrar
                         </button>
@@ -215,12 +276,14 @@ export function getLoginPageContent() {
                                 <div>
                                     <label class="block text-sm font-medium text-black mb-2">Horário de Abertura</label>
                                     <input type="time" id="opening-time" 
-                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
+                                           value="09:00">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-black mb-2">Horário de Fechamento</label>
                                     <input type="time" id="closing-time" 
-                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
+                                           value="18:00">
                                 </div>
                             </div>
                             
@@ -234,7 +297,7 @@ export function getLoginPageContent() {
                             </div>
                         </div>
 
-                        <button onclick="handleRegister(event)" 
+                        <button type="button" onclick="handleRegister()" 
                                 class="w-full bg-green-600 text-white hover:bg-green-700 py-3 rounded-lg wecut-button-hover">
                             Cadastrar
                         </button>
@@ -245,7 +308,13 @@ export function getLoginPageContent() {
                                 Já tem conta? Fazer login
                             </button>
                         </div>
-                    </form>
+                    </div>
+                </div>
+
+                <!-- AVISO DE SEGURANÇA -->
+                <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+                    <strong>⚠️ AVISO:</strong> Esta é uma demonstração frontend. 
+                    Em produção, a autenticação deve ser implementada no backend com medidas de segurança adequadas.
                 </div>
             </div>
         </div>
@@ -253,75 +322,62 @@ export function getLoginPageContent() {
 }
 
 export function getSignupPageContent() {
-    return getLoginPageContent(); // Reutiliza o mesmo conteúdo
-}
-
-export function getPendingApprovalContent() {
-    return `
-        <div class="min-h-screen bg-white flex items-center justify-center px-4 py-8">
-            <div class="w-full max-w-md text-center">
-                <div class="mb-8">
-                    <i data-lucide="clock" class="w-16 h-16 text-yellow-500 mx-auto mb-4"></i>
-                    <h1 class="text-2xl font-bold text-gray-900 mb-2">Cadastro em Análise</h1>
-                    <p class="text-gray-600">Seu cadastro como profissional está sendo revisado pela nossa equipe.</p>
-                    <p class="text-gray-600 mt-2">Você receberá uma notificação por e-mail assim que for aprovado.</p>
-                </div>
-                
-                <button onclick="renderView('home-page')" 
-                        class="w-full bg-black text-white hover:bg-gray-800 py-3 rounded-lg wecut-button-hover">
-                    Voltar para o Início
-                </button>
-            </div>
-        </div>
-    `;
+    return getLoginPageContent();
 }
 
 export function showRegisterForm() {
-    document.getElementById('login-form').classList.add('hidden');
-    document.getElementById('register-form').classList.remove('hidden');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    
+    if (loginForm && registerForm) {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+    }
 }
 
 export function showLoginForm() {
-    document.getElementById('register-form').classList.add('hidden');
-    document.getElementById('login-form').classList.remove('hidden');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    
+    if (loginForm && registerForm) {
+        registerForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+    }
 }
 
 export function initAuthListeners() {
-    // Listener para alteração do tipo de conta
-    document.addEventListener('change', function(e) {
-        if (e.target.name === 'userType') {
+    console.log('🔧 Inicializando listeners de autenticação');
+    
+    // Toggle campos de profissional
+    document.querySelectorAll('input[name="userType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
             const professionalFields = document.getElementById('professional-fields');
             if (professionalFields) {
-                professionalFields.classList.toggle('hidden', e.target.value !== 'professional');
+                professionalFields.classList.toggle('hidden', this.value !== 'professional');
             }
-        }
+        });
     });
+    
+    // Atualizar ícones
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 }
 
 export function updateAuthUI() {
     const authButtons = document.getElementById('auth-buttons');
     const userMenu = document.getElementById('user-menu');
-    const userTypeSwitcher = document.getElementById('user-type-switcher');
 
-    if (appState.currentUser) {
-        authButtons.classList.add('hidden');
-        userMenu.classList.remove('hidden');
-        // Remover o seletor de tipo de usuário conforme solicitado
-        if (userTypeSwitcher) {
-            userTypeSwitcher.classList.add('hidden');
-        }
+    if (stateManager.state.currentUser) {
+        if (authButtons) authButtons.classList.add('hidden');
+        if (userMenu) userMenu.classList.remove('hidden');
         
-        // Atualizar nome do usuário
-        document.getElementById('user-name').textContent = appState.currentUser.name;
-        
-        // Atualizar navegação baseada no tipo de usuário
+        const userName = document.getElementById('user-name');
+        if (userName) userName.textContent = stateManager.state.currentUser.name;
         updateUserTypeNavigation();
     } else {
-        authButtons.classList.remove('hidden');
-        userMenu.classList.add('hidden');
-        if (userTypeSwitcher) {
-            userTypeSwitcher.classList.add('hidden');
-        }
+        if (authButtons) authButtons.classList.remove('hidden');
+        if (userMenu) userMenu.classList.add('hidden');
     }
 }
 
@@ -330,18 +386,16 @@ function updateUserTypeNavigation() {
     const professionalNav = document.getElementById('professional-nav');
     const adminNav = document.getElementById('admin-nav');
 
-    // Esconder todas as navegações
-    clientNav.classList.add('hidden');
-    professionalNav.classList.add('hidden');
-    adminNav.classList.add('hidden');
+    if (clientNav) clientNav.classList.add('hidden');
+    if (professionalNav) professionalNav.classList.add('hidden');
+    if (adminNav) adminNav.classList.add('hidden');
 
-    // Mostrar apenas a navegação relevante
-    if (appState.userType === 'client') {
-        clientNav.classList.remove('hidden');
-    } else if (appState.userType === 'professional') {
-        professionalNav.classList.remove('hidden');
-    } else if (appState.userType === 'admin') {
-        adminNav.classList.remove('hidden');
+    if (stateManager.state.currentUser?.type === 'client') {
+        if (clientNav) clientNav.classList.remove('hidden');
+    } else if (stateManager.state.currentUser?.type === 'professional') {
+        if (professionalNav) professionalNav.classList.remove('hidden');
+    } else if (stateManager.state.currentUser?.type === 'admin') {
+        if (adminNav) adminNav.classList.remove('hidden');
     }
 }
 

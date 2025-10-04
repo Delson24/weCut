@@ -1,11 +1,11 @@
-// js/views/professionalDashboard.js
-import { appState } from '../state/appState.js';
+// js/views/profissionalDashboard.js
+import { stateManager } from '../state/stateManager.js';
 import { renderView } from '../main.js';
-import { convexUpdateAppointmentStatus } from '../services/api.js';
 
 export function getProfessionalDashboardContent() {
-    const professional = appState.professionals.find(p => p.userId === appState.currentUser.id);
-    const professionalAppointments = appState.appointments.filter(apt => apt.professionalId === professional.id);
+    const professional = stateManager.state.professionals.find(p => p.userId === stateManager.state.currentUser?.id);
+    const appointments = stateManager.getProfessionalAppointments(professional?.id);
+    const pendingAppointments = appointments.filter(apt => apt.status === 'pending');
     
     return `
         <div class="min-h-screen bg-gray-50">
@@ -14,75 +14,41 @@ export function getProfessionalDashboardContent() {
                 <div class="mb-8">
                     <h1 class="text-3xl font-bold text-gray-900">Dashboard Profissional</h1>
                     <p class="text-gray-600">Gerencie seus agendamentos e serviços</p>
-                </div>
-
-                <!-- Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-2xl font-bold text-gray-900">${getTodayAppointments(professionalAppointments).length}</p>
-                                <p class="text-gray-600">Agendamentos Hoje</p>
-                            </div>
-                            <i data-lucide="calendar" class="w-8 h-8 text-blue-600"></i>
-                        </div>
+                    
+                    <!-- Banner de Status -->
+                    <div class="mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                        <p>✅ Seu perfil está ativo e visível para clientes</p>
                     </div>
                     
-                    <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-2xl font-bold text-gray-900">${getUpcomingAppointments(professionalAppointments).length}</p>
-                                <p class="text-gray-600">Próximos 7 Dias</p>
-                            </div>
-                            <i data-lucide="calendar-days" class="w-8 h-8 text-green-600"></i>
+                    ${pendingAppointments.length > 0 ? `
+                        <div class="mt-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+                            <p>📬 Você tem <strong>${pendingAppointments.length}</strong> novo(s) agendamento(s) para confirmar</p>
                         </div>
-                    </div>
-                    
-                    <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-2xl font-bold text-gray-900">${professional.rating || '4.8'}</p>
-                                <p class="text-gray-600">Avaliação Média</p>
-                            </div>
-                            <i data-lucide="star" class="w-8 h-8 text-yellow-600"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white p-6 rounded-lg border border-gray-300 shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-2xl font-bold text-gray-900">${professional.reviews || '0'}</p>
-                                <p class="text-gray-600">Avaliações</p>
-                            </div>
-                            <i data-lucide="message-circle" class="w-8 h-8 text-purple-600"></i>
-                        </div>
-                    </div>
+                    ` : ''}
                 </div>
 
                 <!-- Tabs -->
                 <div class="bg-white rounded-lg border border-gray-300 shadow-sm">
                     <div class="border-b border-gray-300">
                         <div class="flex overflow-x-auto">
-                            <button class="px-6 py-4 border-b-2 whitespace-nowrap ${appState.professionalTab === 'today' ? 'border-black text-black font-medium' : 'text-gray-600 hover:text-black'}" 
-                                    onclick="switchProfessionalTab('today')">
-                                <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i>
-                                Hoje
+                            <button class="px-6 py-4 border-b-2 whitespace-nowrap ${stateManager.state.professionalTab === 'pending' ? 'border-black text-black font-medium' : 'text-gray-600 hover:text-black'}" 
+                                    onclick="switchProfessionalTab('pending')">
+                                <i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>
+                                Pendentes
+                                ${pendingAppointments.length > 0 ? `
+                                    <span class="ml-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">${pendingAppointments.length}</span>
+                                ` : ''}
                             </button>
-                            <button class="px-6 py-4 border-b-2 whitespace-nowrap ${appState.professionalTab === 'upcoming' ? 'border-black text-black font-medium' : 'text-gray-600 hover:text-black'}" 
-                                    onclick="switchProfessionalTab('upcoming')">
-                                <i data-lucide="calendar-days" class="w-4 h-4 inline mr-2"></i>
-                                Próximos
-                            </button>
-                            <button class="px-6 py-4 border-b-2 whitespace-nowrap ${appState.professionalTab === 'completed' ? 'border-black text-black font-medium' : 'text-gray-600 hover:text-black'}" 
-                                    onclick="switchProfessionalTab('completed')">
+                            <button class="px-6 py-4 border-b-2 whitespace-nowrap ${stateManager.state.professionalTab === 'accepted' ? 'border-black text-black font-medium' : 'text-gray-600 hover:text-black'}" 
+                                    onclick="switchProfessionalTab('accepted')">
                                 <i data-lucide="check-circle" class="w-4 h-4 inline mr-2"></i>
-                                Concluídos
+                                Aceites
                             </button>
                         </div>
                     </div>
                     
                     <div class="p-6">
-                        ${getProfessionalTabContent(professionalAppointments)}
+                        ${getProfessionalTabContent(appointments)}
                     </div>
                 </div>
             </div>
@@ -91,27 +57,14 @@ export function getProfessionalDashboardContent() {
 }
 
 function getProfessionalTabContent(appointments) {
-    const today = new Date().toDateString();
-    
-    switch(appState.professionalTab || 'today') {
-        case 'today':
-            const todayAppointments = appointments.filter(apt => 
-                new Date(apt.date).toDateString() === today
-            );
-            return renderAppointmentsList(todayAppointments, 'today');
+    switch(stateManager.state.professionalTab) {
+        case 'pending':
+            const pendingAppointments = appointments.filter(apt => apt.status === 'pending');
+            return renderAppointmentsList(pendingAppointments, 'pending');
             
-        case 'upcoming':
-            const upcomingAppointments = appointments.filter(apt => 
-                new Date(apt.date) >= new Date() && 
-                new Date(apt.date).toDateString() !== today
-            );
-            return renderAppointmentsList(upcomingAppointments, 'upcoming');
-            
-        case 'completed':
-            const completedAppointments = appointments.filter(apt => 
-                apt.status === 'completed' || new Date(apt.date) < new Date()
-            );
-            return renderAppointmentsList(completedAppointments, 'completed');
+        case 'accepted':
+            const acceptedAppointments = appointments.filter(apt => apt.status === 'accepted');
+            return renderAppointmentsList(acceptedAppointments, 'accepted');
             
         default:
             return '<p class="text-gray-600">Conteúdo não disponível</p>';
@@ -124,9 +77,7 @@ function renderAppointmentsList(appointments, type) {
             <div class="text-center py-12">
                 <i data-lucide="calendar" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhum agendamento</h3>
-                <p class="text-gray-600">${type === 'today' ? 'Não há agendamentos para hoje.' : 
-                                         type === 'upcoming' ? 'Não há agendamentos futuros.' : 
-                                         'Não há agendamentos concluídos.'}</p>
+                <p class="text-gray-600">${type === 'pending' ? 'Não há agendamentos pendentes.' : 'Não há agendamentos aceites.'}</p>
             </div>
         `;
     }
@@ -139,45 +90,31 @@ function renderAppointmentsList(appointments, type) {
                         <div>
                             <h3 class="font-medium text-gray-900">${apt.clientName}</h3>
                             <p class="text-gray-600">${apt.service} • ${apt.time}</p>
+                            <p class="text-sm text-gray-500">Código: ${apt.code}</p>
                         </div>
-                        <span class="px-3 py-1 rounded-full text-sm ${
-                            apt.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                            apt.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            apt.status === 'completed' ? 'bg-blue-100 text-blue-800' :
-                            'bg-red-100 text-red-800'
-                        }">
-                            ${apt.status === 'confirmed' ? 'Confirmado' :
-                              apt.status === 'pending' ? 'Pendente' :
-                              apt.status === 'completed' ? 'Concluído' :
-                              'Cancelado'}
+                        <span class="px-3 py-1 rounded-full text-sm ${type === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">
+                            ${type === 'pending' ? 'Pendente' : 'Aceite'}
                         </span>
                     </div>
                     
-                    <div class="flex items-center justify-between text-sm text-gray-600 mb-3">
-                        <div class="flex items-center gap-4">
-                            <span>📅 ${new Date(apt.date).toLocaleDateString('pt-BR')}</span>
-                            <span>⏰ ${apt.time}</span>
-                            <span>💰 ${apt.price}</span>
-                        </div>
+                    <div class="text-sm text-gray-600 mb-3">
+                        <p><strong>Data:</strong> ${new Date(apt.date).toLocaleDateString('pt-BR')}</p>
+                        <p><strong>Hora:</strong> ${apt.time}</p>
+                        <p><strong>Valor:</strong> ${apt.price}</p>
+                        <p><strong>Contacto:</strong> ${apt.phone}</p>
+                        <p><strong>Local:</strong> ${apt.address}</p>
+                        ${apt.notes ? `<p><strong>Observações:</strong> ${apt.notes}</p>` : ''}
                     </div>
                     
                     <div class="flex gap-2">
-                        <button onclick="viewAppointmentDetails(${apt.id})" 
-                                class="border border-gray-300 hover:bg-gray-50 px-3 py-1 rounded text-sm wecut-button-hover">
-                            <i data-lucide="eye" class="w-4 h-4 inline mr-1"></i>
-                            Detalhes
-                        </button>
-                        
-                        ${type === 'today' || type === 'upcoming' ? `
-                            <button onclick="markAppointmentAsCompleted(${apt.id})" 
-                                    class="bg-green-600 text-white hover:bg-green-700 px-3 py-1 rounded text-sm wecut-button-hover">
+                        ${type === 'pending' ? `
+                            <button onclick="acceptAppointment(${apt.id})" class="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded text-sm wecut-button-hover">
                                 <i data-lucide="check" class="w-4 h-4 inline mr-1"></i>
-                                Concluir
+                                Aceitar
                             </button>
-                            <button onclick="cancelAppointment(${apt.id})" 
-                                    class="bg-red-600 text-white hover:bg-red-700 px-3 py-1 rounded text-sm wecut-button-hover">
+                            <button onclick="rejectAppointment(${apt.id})" class="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded text-sm wecut-button-hover">
                                 <i data-lucide="x" class="w-4 h-4 inline mr-1"></i>
-                                Cancelar
+                                Recusar
                             </button>
                         ` : ''}
                     </div>
@@ -187,72 +124,37 @@ function renderAppointmentsList(appointments, type) {
     `;
 }
 
-// Funções auxiliares
-function getTodayAppointments(appointments) {
-    const today = new Date().toDateString();
-    return appointments.filter(apt => new Date(apt.date).toDateString() === today);
-}
-
-function getUpcomingAppointments(appointments) {
-    const today = new Date();
-    const nextWeek = new Date(today);
-    nextWeek.setDate(nextWeek.getDate() + 7);
-    return appointments.filter(apt => new Date(apt.date) >= today && new Date(apt.date) <= nextWeek);
-}
-
-// Ações nos agendamentos
-export async function markAppointmentAsCompleted(appointmentId) {
-    try {
-        const result = await convexUpdateAppointmentStatus(appointmentId, 'completed');
-        if (result.success) {
-            const appointment = appState.appointments.find(apt => apt.id === appointmentId);
-            if (appointment) {
-                appointment.status = 'completed';
-            }
-            alert('Agendamento marcado como concluído!');
-            renderView('professional-dashboard-page');
-        }
-    } catch (error) {
-        alert('Erro ao atualizar agendamento: ' + error.message);
-    }
-}
-
-export async function cancelAppointment(appointmentId) {
-    if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
-        try {
-            const result = await convexUpdateAppointmentStatus(appointmentId, 'cancelled');
-            if (result.success) {
-                const appointment = appState.appointments.find(apt => apt.id === appointmentId);
-                if (appointment) {
-                    appointment.status = 'cancelled';
-                }
-                alert('Agendamento cancelado!');
-                renderView('professional-dashboard-page');
-            }
-        } catch (error) {
-            alert('Erro ao cancelar agendamento: ' + error.message);
-        }
-    }
-}
-
-export function viewAppointmentDetails(appointmentId) {
-    const appointment = appState.appointments.find(apt => apt.id === appointmentId);
-    if (!appointment) return;
-    
-    alert(`Detalhes do agendamento:\nCliente: ${appointment.clientName}\nServiço: ${appointment.service}\nData: ${new Date(appointment.date).toLocaleDateString('pt-BR')}\nHora: ${appointment.time}\nValor: ${appointment.price}`);
-}
-
 export function switchProfessionalTab(tab) {
-    appState.professionalTab = tab;
+    stateManager.setProfessionalTab(tab);
     renderView('professional-dashboard-page');
 }
 
+export function acceptAppointment(appointmentId) {
+    if (stateManager.updateAppointmentStatus(appointmentId, 'accepted')) {
+        alert('✅ Agendamento aceito! O cliente foi notificado.');
+        renderView('professional-dashboard-page');
+    }
+}
+
+export function rejectAppointment(appointmentId) {
+    if (confirm('Tem certeza que deseja recusar este agendamento?')) {
+        if (stateManager.updateAppointmentStatus(appointmentId, 'rejected')) {
+            alert('❌ Agendamento recusado. O cliente foi notificado.');
+            renderView('professional-dashboard-page');
+        }
+    }
+}
+
 export function initProfessionalDashboardListeners() {
-    // Listeners serão adicionados dinamicamente quando o conteúdo for renderizado
+    console.log('🔧 Inicializando listeners do professional dashboard');
+    
+    // Atualizar ícones
+    if (window.lucide) {
+        lucide.createIcons();
+    }
 }
 
 // Adicionar funções ao escopo global
 window.switchProfessionalTab = switchProfessionalTab;
-window.markAppointmentAsCompleted = markAppointmentAsCompleted;
-window.cancelAppointment = cancelAppointment;
-window.viewAppointmentDetails = viewAppointmentDetails;
+window.acceptAppointment = acceptAppointment;
+window.rejectAppointment = rejectAppointment;

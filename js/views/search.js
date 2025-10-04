@@ -1,8 +1,10 @@
 // js/views/search.js
-import { appState } from '../state/appState.js';
+import { stateManager } from '../state/stateManager.js';
 import { renderView } from '../main.js';
 
 export function getSearchPageContent() {
+    const professionals = stateManager.state.professionals.filter(p => p.status === 'approved');
+    
     return `
         <div class="min-h-screen bg-gray-50">
             <div class="max-w-7xl mx-auto px-4 py-8">
@@ -30,7 +32,7 @@ export function getSearchPageContent() {
 
                 <!-- Results Header -->
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl text-black" id="results-count">${appState.professionals.filter(p => p.status === 'approved').length} profissionais encontrados</h2>
+                    <h2 class="text-2xl text-black" id="results-count">${professionals.length} profissionais encontrados</h2>
                     <select class="w-48 border border-gray-300 rounded-lg p-2 focus:border-black focus:ring-0" id="sort-select">
                         <option>Ordenar por relevância</option>
                         <option>Melhor avaliado</option>
@@ -42,7 +44,7 @@ export function getSearchPageContent() {
 
                 <!-- Results Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="search-results">
-                    ${appState.professionals.filter(pro => pro.status === 'approved').map(professional => `
+                    ${professionals.map(professional => `
                         <div class="border border-gray-300 cursor-pointer transition-all hover:shadow-lg rounded-lg overflow-hidden">
                             <div class="flex">
                                 <div class="w-32 h-32 relative flex-shrink-0">
@@ -115,6 +117,20 @@ export function performSearch() {
 
 export function showFilters() {
     alert('Mostrar filtros de busca');
+}
+
+export function initSearchListeners() {
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.querySelector('[onclick="performSearch()"]');
+    
+    if (searchInput && searchButton) {
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
 }
 
 // Adicionar funções ao escopo global

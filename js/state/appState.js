@@ -3,18 +3,9 @@ export const appState = {
     currentUser: null,
     userType: 'client',
     activeView: 'home-page',
-    bookingProfessionalId: null,
-    
-    // Propriedades para agendamento
-    selectedServicesForBooking: [],
-    selectedDateForBooking: null,
-    selectedTimeForBooking: null,
-    
-    // Propriedades para dashboards
     adminTab: 'pending-salons',
     professionalTab: 'today',
 
-    // Dados simulados
     users: [
         { 
             id: 1, 
@@ -76,21 +67,6 @@ export const appState = {
             status: 'approved', 
             submittedAt: new Date().toISOString(), 
             approvedAt: new Date().toISOString() 
-        },
-        { 
-            id: 2, 
-            name: 'Beleza Total', 
-            location: 'Matola', 
-            address: 'Av. da Liberdade, 456', 
-            phone: '+258 84 987 6543', 
-            services: ['Corte Feminino', 'Coloração'], 
-            openingHours: { 
-                opening: '08:00', 
-                closing: '19:00' 
-            }, 
-            photos: [], 
-            status: 'pending', 
-            submittedAt: new Date().toISOString() 
         }
     ],
     
@@ -112,21 +88,5 @@ export const appState = {
         }
     ],
 
-    // Para simular registros pendentes
-    pendingRegistrations: [
-        { 
-            id: 1, 
-            professionalId: 1, 
-            name: 'Profissional Pendente', 
-            email: 'pending@example.com', 
-            phone: '+258 84 999 9999', 
-            salonName: 'Salão Pendente', 
-            location: 'Matola', 
-            address: 'Av. Central, 456', 
-            specialty: 'Cabelereiro', 
-            services: ['Corte Feminino'], 
-            submittedAt: new Date().toISOString(), 
-            status: 'pending' 
-        }
-    ]
+    pendingRegistrations: []
 };
