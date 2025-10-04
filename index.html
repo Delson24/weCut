@@ -23,26 +23,6 @@
         .active-nav {
             background-color: #f9fafb;
         }
-        .typewriter h1 {
-            overflow: hidden;
-            border-right: .15em solid black;
-            white-space: nowrap;
-            margin: 0 auto;
-            letter-spacing: .15em;
-            animation: 
-                typing 3.5s steps(40, end),
-                blink-caret .75s step-end infinite;
-        }
-
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
-
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: black; }
-        }
     </style>
 </head>
 <body class="min-h-screen bg-white">
@@ -527,8 +507,9 @@
                     const salonLocation = document.getElementById('salon-location')?.value;
                     const salonPhone = document.getElementById('salon-phone')?.value;
                     const salonAddress = document.getElementById('salon-address')?.value;
+                    const professionalDescription = document.getElementById('professional-description')?.value;
 
-                    if (!salonName || !salonLocation || !salonPhone || !salonAddress) {
+                    if (!salonName || !salonLocation || !salonPhone || !salonAddress || !professionalDescription) {
                         alert('Por favor, preencha todos os campos obrigatórios do salão');
                         return;
                     }
@@ -588,11 +569,11 @@
                         salonId: newSalon.id,
                         name: userData.name,
                         specialty: allServices[0] || 'Profissional de Beleza',
-                        description: 'Profissional cadastrado no sistema WeCut',
+                        description: professionalDescription,
                         services: allServices,
                         rating: 0,
                         reviews: 0,
-                        image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
+                        image: salonPhotos.length > 0 ? salonPhotos[0] : 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60',
                         price: '45,00 MT',
                         location: salonData.location,
                         status: 'approved'
@@ -792,55 +773,32 @@
                     <!-- Hero Section -->
                     <section class="bg-white py-20">
                         <div class="max-w-7xl mx-auto px-4 text-center">
-                            <div class="typewriter mb-6">
-                                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-black inline-block">
-                                    Encontre o seu cabeleireiro ideal em Moçambique
-                                </h1>
-                            </div>
+                            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-6">
+                                Encontre o salão perfeito<br>para o seu estilo
+                            </h1>
                             
                             <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                                Descubra profissionais talentosos em Maputo, Beira, Nampula e outras cidades. 
+                                Descubra os melhores profissionais de beleza perto de você.<br>
                                 Agende seu próximo corte com facilidade e segurança.
                             </p>
                             
                             <!-- Search Bar -->
                             <div class="max-w-4xl mx-auto mb-8">
                                 <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
-                                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Serviço</label>
-                                            <select class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-black focus:ring-0">
-                                                <option value="">Todos os serviços</option>
-                                                <option value="corte-masculino">Corte Masculino</option>
-                                                <option value="corte-feminino">Corte Feminino</option>
-                                                <option value="barba">Barba</option>
-                                                <option value="coloracao">Coloração</option>
-                                                <option value="trancas">Tranças</option>
-                                                <option value="manicure">Manicure</option>
-                                                <option value="pedicure">Pedicure</option>
-                                            </select>
+                                    <div class="flex flex-col md:flex-row gap-4">
+                                        <div class="flex-1 relative">
+                                            <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"></i>
+                                            <input 
+                                                type="text"
+                                                placeholder="Pesquisar salão ou profissional..."
+                                                class="w-full pl-10 h-12 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
+                                                id="home-search-input"
+                                            />
                                         </div>
-                                        
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Localização</label>
-                                            <input type="text" 
-                                                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-black focus:ring-0" 
-                                                   placeholder="Cidade ou bairro">
-                                        </div>
-                                        
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Data</label>
-                                            <input type="date" 
-                                                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-black focus:ring-0">
-                                        </div>
-                                        
-                                        <div class="flex items-end">
-                                            <button onclick="renderView('search-page')" 
-                                                    class="w-full bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors wecut-button-hover font-medium">
-                                                <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>
-                                                Buscar
-                                            </button>
-                                        </div>
+                                        <button onclick="performHomeSearch()" 
+                                                class="bg-black text-white hover:bg-gray-800 h-12 px-8 rounded-lg wecut-button-hover font-medium">
+                                            Buscar
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1243,6 +1201,14 @@
                                     <textarea id="salon-address" placeholder="Endereço completo do salão" 
                                               class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"></textarea>
                                     
+                                    <!-- Descrição do profissional -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-black mb-2">Descrição do Profissional</label>
+                                        <textarea id="professional-description" rows="3" 
+                                                  class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0"
+                                                  placeholder="Descreva seus serviços, experiência, etc." required></textarea>
+                                    </div>
+                                    
                                     <!-- Serviços oferecidos - NÃO OBRIGATÓRIOS -->
                                     <div>
                                         <label class="block text-sm font-medium text-black mb-2">Serviços Oferecidos (opcional)</label>
@@ -1336,7 +1302,8 @@
         }
 
         function getProfessionalProfileContent() {
-            const professional = stateManager.state.professionals[0];
+            const professional = stateManager.state.professionals.find(p => p.id === stateManager.state.bookingProfessionalId) || stateManager.state.professionals[0];
+            const salon = stateManager.state.salons.find(s => s.id === professional.salonId);
             
             return `
                 <div class="min-h-screen bg-white">
@@ -1374,8 +1341,8 @@
                                     </div>
                                     <div class="flex-1">
                                         <h1 class="text-3xl font-medium text-black mb-1">${professional.name}</h1>
-                                        <p class="text-lg text-gray-600 mb-2">Barbearia Clássica</p>
-                                        <p class="text-gray-600 mb-3">Especialista em Cortes Masculinos e Barba</p>
+                                        <p class="text-lg text-gray-600 mb-2">${salon?.name || 'Salão'}</p>
+                                        <p class="text-gray-600 mb-3">${professional.specialty}</p>
                                         
                                         <div class="flex items-center gap-6 mb-4">
                                             <div class="flex items-center gap-2">
@@ -1393,20 +1360,16 @@
                                             </div>
                                         </div>
 
-                                        <p class="text-gray-700 mb-4">Profissional apaixonado por criar looks únicos e modernos. Especializo-me em cortes masculinos clássicos e contemporâneos, sempre buscando a excelência no atendimento aos meus clientes em Maputo.</p>
+                                        <p class="text-gray-700 mb-4">${professional.description}</p>
 
                                         <div class="flex items-center gap-4 text-sm text-gray-600">
                                             <div class="flex items-center gap-1">
                                                 <i data-lucide="clock" class="w-4 h-4"></i>
-                                                <span>8 anos de experiência</span>
+                                                <span>${salon?.openingHours?.opening || '09:00'} - ${salon?.openingHours?.closing || '18:00'}</span>
                                             </div>
                                             <div class="flex items-center gap-1">
                                                 <i data-lucide="phone" class="w-4 h-4"></i>
-                                                <span>(+258) 84 123 4567</span>
-                                            </div>
-                                            <div class="flex items-center gap-1">
-                                                <i data-lucide="instagram" class="w-4 h-4"></i>
-                                                <span>@carlosmacamo_barber</span>
+                                                <span>${salon?.phone || 'N/A'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1425,25 +1388,32 @@
                                     <div class="p-6">
                                         <!-- Portfolio Content -->
                                         <div class="space-y-6">
-                                            <div class="aspect-[4/3] rounded-lg overflow-hidden">
-                                                <img 
-                                                    src="${professional.image}" 
-                                                    alt="Portfolio image"
-                                                    class="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                            
-                                            <div class="grid grid-cols-4 gap-4">
-                                                ${Array(4).fill().map((_, i) => `
-                                                    <div class="aspect-square rounded-lg overflow-hidden border-2 border-gray-300">
-                                                        <img 
-                                                            src="${professional.image}" 
-                                                            alt="Thumbnail ${i+1}"
-                                                            class="w-full h-full object-cover"
-                                                        />
-                                                    </div>
-                                                `).join('')}
-                                            </div>
+                                            ${salon?.photos && salon.photos.length > 0 ? `
+                                                <div class="aspect-[4/3] rounded-lg overflow-hidden">
+                                                    <img 
+                                                        src="${salon.photos[0]}" 
+                                                        alt="Portfolio image"
+                                                        class="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                                
+                                                <div class="grid grid-cols-4 gap-4">
+                                                    ${salon.photos.slice(0, 4).map(photo => `
+                                                        <div class="aspect-square rounded-lg overflow-hidden border-2 border-gray-300">
+                                                            <img 
+                                                                src="${photo}" 
+                                                                alt="Thumbnail"
+                                                                class="w-full h-full object-cover"
+                                                            />
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                            ` : `
+                                                <div class="text-center py-8">
+                                                    <i data-lucide="camera" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                                                    <p class="text-gray-600">Nenhuma foto disponível</p>
+                                                </div>
+                                            `}
                                         </div>
                                     </div>
                                 </div>
@@ -1488,7 +1458,7 @@
 
                                     <div class="mt-6 pt-6 border-t border-gray-300">
                                         <div class="text-center text-sm text-gray-600">
-                                            <p class="mb-1">📍 Av. Julius Nyerere, 123 - Polana, Maputo</p>
+                                            <p class="mb-1">📍 ${salon?.address || 'Endereço não disponível'}</p>
                                             <button class="text-black hover:text-gray-600">Ver no mapa</button>
                                         </div>
                                     </div>
@@ -1499,12 +1469,12 @@
                                     <h4 class="font-medium text-black mb-4">Horário de Funcionamento</h4>
                                     <div class="space-y-2 text-sm">
                                         ${[
-                                            ['Segunda-feira', '09:00 - 18:00'],
-                                            ['Terça-feira', '09:00 - 18:00'],
-                                            ['Quarta-feira', '09:00 - 18:00'],
-                                            ['Quinta-feira', '09:00 - 18:00'],
-                                            ['Sexta-feira', '09:00 - 18:00'],
-                                            ['Sábado', '08:00 - 17:00'],
+                                            ['Segunda-feira', `${salon?.openingHours?.opening || '09:00'} - ${salon?.openingHours?.closing || '18:00'}`],
+                                            ['Terça-feira', `${salon?.openingHours?.opening || '09:00'} - ${salon?.openingHours?.closing || '18:00'}`],
+                                            ['Quarta-feira', `${salon?.openingHours?.opening || '09:00'} - ${salon?.openingHours?.closing || '18:00'}`],
+                                            ['Quinta-feira', `${salon?.openingHours?.opening || '09:00'} - ${salon?.openingHours?.closing || '18:00'}`],
+                                            ['Sexta-feira', `${salon?.openingHours?.opening || '09:00'} - ${salon?.openingHours?.closing || '18:00'}`],
+                                            ['Sábado', `${salon?.openingHours?.opening || '09:00'} - ${salon?.openingHours?.closing || '18:00'}`],
                                             ['Domingo', 'Fechado']
                                         ].map(([day, hours]) => `
                                             <div class="flex justify-between">
@@ -1523,6 +1493,7 @@
 
         function getBookingPageContent() {
             const professional = stateManager.state.professionals.find(p => p.id === stateManager.state.bookingProfessionalId) || stateManager.state.professionals[0];
+            const salon = stateManager.state.salons.find(s => s.id === professional.salonId);
             
             return `
                 <div class="min-h-screen bg-white">
@@ -1552,8 +1523,8 @@
                                     </div>
                                     <div class="flex-1">
                                         <h1 class="text-3xl font-medium text-black mb-1">${professional.name}</h1>
-                                        <p class="text-lg text-gray-600 mb-2">Barbearia Clássica</p>
-                                        <p class="text-gray-600 mb-3">Especialista em Cortes Masculinos e Barba</p>
+                                        <p class="text-lg text-gray-600 mb-2">${salon?.name || 'Salão'}</p>
+                                        <p class="text-gray-600 mb-3">${professional.specialty}</p>
                                         
                                         <div class="flex items-center gap-6 mb-4">
                                             <div class="flex items-center gap-2">
@@ -1604,9 +1575,9 @@
                                             <select id="booking-service" required
                                                     class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
                                                 <option value="">Selecione um serviço</option>
-                                                <option value="Corte Masculino">Corte Masculino - 1.800 MT</option>
-                                                <option value="Barba">Barba - 1.000 MT</option>
-                                                <option value="Corte + Barba">Corte + Barba - 2.400 MT</option>
+                                                ${professional.services.map(service => `
+                                                    <option value="${service}">${service} - ${professional.price}</option>
+                                                `).join('')}
                                             </select>
                                         </div>
                                         
@@ -1677,34 +1648,28 @@
                 return;
             }
             
+            const professional = stateManager.state.professionals.find(p => p.id === stateManager.state.bookingProfessionalId);
+            const salon = stateManager.state.salons.find(s => s.id === professional.salonId);
+            
             const newAppointment = {
                 professionalId: stateManager.state.bookingProfessionalId || 1,
                 clientName: stateManager.state.currentUser ? stateManager.state.currentUser.name : 'Cliente',
                 service: service,
                 date: new Date(date).toISOString(),
                 time: time,
-                price: getServicePrice(service),
+                price: professional.price,
                 status: 'pending',
                 notes: notes,
-                location: 'Maputo',
-                phone: '+258 84 123 4567',
-                address: 'Av. Julius Nyerere, 123 - Polana, Maputo',
-                image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFpcmRyZXNzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60'
+                location: professional.location,
+                phone: salon?.phone || '+258 84 123 4567',
+                address: salon?.address || 'Endereço não disponível',
+                image: professional.image
             };
             
             stateManager.addAppointment(newAppointment);
             
             alert(`📅 Agendamento solicitado! Código: ${newAppointment.code}\n\nO profissional será notificado e você receberá uma confirmação em breve.`);
             renderView('appointments-page');
-        }
-
-        function getServicePrice(service) {
-            const prices = {
-                'Corte Masculino': '1.800 MT',
-                'Barba': '1.000 MT',
-                'Corte + Barba': '2.400 MT'
-            };
-            return prices[service] || 'A combinar';
         }
 
         function getAppointmentsPageContent() {
@@ -2256,6 +2221,16 @@
             alert(`Buscando por: ${searchTerm}`);
         }
 
+        function performHomeSearch() {
+            const searchTerm = document.getElementById('home-search-input').value;
+            if (searchTerm) {
+                stateManager.state.searchTerm = searchTerm;
+                renderView('search-page');
+            } else {
+                alert('Por favor, digite algo para pesquisar');
+            }
+        }
+
         function showFilters() {
             alert('Mostrar filtros de busca');
         }
@@ -2560,8 +2535,8 @@
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-black mb-2">Endereço</label>
-                                    <textarea id="edit-salon-address" rows="2"
-                                              class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">${salon?.address || ''}</textarea>
+                                    <input type="text" id="edit-salon-address" value="${salon?.address || ''}" 
+                                           class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
                                 </div>
                                 
                                 <div>
@@ -2587,90 +2562,7 @@
                             </div>
                         </div>
                         
-                        <!-- Serviços Oferecidos -->
-                        <div class="mt-6">
-                            <h4 class="text-lg font-semibold text-black mb-4 border-b pb-2">Serviços Oferecidos</h4>
-                            
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="Corte Masculino" class="mr-2 edit-service-checkbox" 
-                                           ${professional?.services?.includes('Corte Masculino') ? 'checked' : ''}>
-                                    <span class="text-sm">Corte Masculino</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="Corte Feminino" class="mr-2 edit-service-checkbox"
-                                           ${professional?.services?.includes('Corte Feminino') ? 'checked' : ''}>
-                                    <span class="text-sm">Corte Feminino</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="Barba" class="mr-2 edit-service-checkbox"
-                                           ${professional?.services?.includes('Barba') ? 'checked' : ''}>
-                                    <span class="text-sm">Barba</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="Coloração" class="mr-2 edit-service-checkbox"
-                                           ${professional?.services?.includes('Coloração') ? 'checked' : ''}>
-                                    <span class="text-sm">Coloração</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="Manicure" class="mr-2 edit-service-checkbox"
-                                           ${professional?.services?.includes('Manicure') ? 'checked' : ''}>
-                                    <span class="text-sm">Manicure</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" value="Pedicure" class="mr-2 edit-service-checkbox"
-                                           ${professional?.services?.includes('Pedicure') ? 'checked' : ''}>
-                                    <span class="text-sm">Pedicure</span>
-                                </label>
-                            </div>
-                            
-                            <!-- Campo para serviço personalizado -->
-                            <div class="flex gap-2 mb-2">
-                                <input type="text" id="edit-custom-service" placeholder="Adicionar serviço personalizado" 
-                                       class="flex-1 p-2 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
-                                <button type="button" onclick="addEditCustomService()" 
-                                        class="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 wecut-button-hover">
-                                    Adicionar
-                                </button>
-                            </div>
-                            <div id="edit-custom-services-list" class="flex flex-wrap gap-2">
-                                ${professional?.services?.filter(service => 
-                                    !['Corte Masculino', 'Corte Feminino', 'Barba', 'Coloração', 'Manicure', 'Pedicure'].includes(service)
-                                ).map(service => `
-                                    <div class="flex items-center bg-gray-100 px-3 py-1 rounded-full">
-                                        <span class="text-sm mr-2">${service}</span>
-                                        <button type="button" onclick="removeEditCustomService('${service}')" class="text-red-500 hover:text-red-700">
-                                            <i data-lucide="x" class="w-3 h-3"></i>
-                                        </button>
-                                    </div>
-                                `).join('') || ''}
-                            </div>
-                        </div>
-                        
-                        <!-- Fotos do Salão -->
-                        <div class="mt-6">
-                            <h4 class="text-lg font-semibold text-black mb-4 border-b pb-2">Fotos do Salão</h4>
-                            
-                            <div class="mb-4">
-                                <input type="file" id="edit-salon-photos" multiple accept="image/*" 
-                                       class="w-full p-3 border border-gray-300 rounded-lg focus:border-black focus:ring-0">
-                                <p class="text-xs text-gray-500 mt-1">Selecione novas fotos para adicionar (máx. 5 fotos)</p>
-                            </div>
-                            
-                            <div id="edit-photo-preview" class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                                ${salon?.photos?.map((photo, index) => `
-                                    <div class="relative">
-                                        <img src="${photo}" alt="Foto do salão" class="w-full h-32 object-cover rounded-lg">
-                                        <button type="button" onclick="removeExistingPhoto(${index})" 
-                                                class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1">
-                                            <i data-lucide="x" class="w-3 h-3"></i>
-                                        </button>
-                                    </div>
-                                `).join('') || ''}
-                            </div>
-                        </div>
-                        
-                        <div class="mt-8 flex justify-end space-x-3">
+                        <div class="mt-8 flex justify-end gap-4">
                             <button type="button" onclick="this.closest('.fixed').remove()" 
                                     class="border border-gray-300 hover:bg-gray-50 px-6 py-2 rounded-lg wecut-button-hover">
                                 Cancelar
@@ -2686,104 +2578,9 @@
             
             document.body.appendChild(modal);
             
-            // Inicializar listeners para upload de fotos
-            const photoInput = document.getElementById('edit-salon-photos');
-            if (photoInput) {
-                photoInput.addEventListener('change', function() {
-                    handleEditPhotoUpload(this);
-                });
-            }
-            
             // Atualizar ícones
             if (window.lucide) {
                 lucide.createIcons();
-            }
-        };
-
-        // Função para adicionar serviço personalizado no editor
-        window.addEditCustomService = function() {
-            const customServiceInput = document.getElementById('edit-custom-service');
-            const serviceName = customServiceInput.value.trim();
-            
-            if (serviceName) {
-                const customServicesList = document.getElementById('edit-custom-services-list');
-                
-                const serviceElement = document.createElement('div');
-                serviceElement.className = 'flex items-center bg-gray-100 px-3 py-1 rounded-full';
-                serviceElement.innerHTML = `
-                    <span class="text-sm mr-2">${serviceName}</span>
-                    <button type="button" onclick="removeEditCustomService('${serviceName}')" class="text-red-500 hover:text-red-700">
-                        <i data-lucide="x" class="w-3 h-3"></i>
-                    </button>
-                `;
-                
-                customServicesList.appendChild(serviceElement);
-                customServiceInput.value = '';
-                
-                // Atualizar ícones
-                if (window.lucide) {
-                    lucide.createIcons();
-                }
-            }
-        };
-
-        // Função para remover serviço personalizado no editor
-        window.removeEditCustomService = function(serviceName) {
-            const elements = document.querySelectorAll('#edit-custom-services-list > div');
-            elements.forEach(element => {
-                if (element.textContent.includes(serviceName)) {
-                    element.remove();
-                }
-            });
-        };
-
-        // Função para lidar com upload de fotos no editor
-        window.handleEditPhotoUpload = function(input) {
-            const preview = document.getElementById('edit-photo-preview');
-            
-            if (input.files && input.files.length > 0) {
-                const files = Array.from(input.files).slice(0, 5); // Limitar a 5 fotos
-                
-                files.forEach(file => {
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const imgContainer = document.createElement('div');
-                            imgContainer.className = 'relative';
-                            imgContainer.innerHTML = `
-                                <img src="${e.target.result}" alt="Preview" class="w-full h-32 object-cover rounded-lg">
-                                <button type="button" onclick="removeEditPhoto(this)" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1">
-                                    <i data-lucide="x" class="w-3 h-3"></i>
-                                </button>
-                            `;
-                            preview.appendChild(imgContainer);
-                            
-                            // Atualizar ícones
-                            if (window.lucide) {
-                                lucide.createIcons();
-                            }
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-        };
-
-        // Função para remover foto do preview no editor
-        window.removeEditPhoto = function(button) {
-            button.closest('.relative').remove();
-        };
-
-        // Função para remover foto existente
-        window.removeExistingPhoto = function(index) {
-            const salon = stateManager.state.salons.find(s => s.userId === stateManager.state.currentUser.id);
-            if (salon && salon.photos) {
-                salon.photos.splice(index, 1);
-                stateManager.saveState();
-                
-                // Recarregar o modal de edição
-                document.querySelector('.fixed').remove();
-                editProfessionalProfile();
             }
         };
 
@@ -2795,20 +2592,16 @@
             const salon = stateManager.state.salons.find(s => s.userId === stateManager.state.currentUser.id);
             const user = stateManager.state.users.find(u => u.id === stateManager.state.currentUser.id);
             
-            // Atualizar informações pessoais
+            // Atualizar informações do profissional
             if (professional) {
                 professional.name = document.getElementById('edit-name').value;
                 professional.specialty = document.getElementById('edit-specialty').value;
                 professional.description = document.getElementById('edit-description').value;
-                
-                // Atualizar serviços
-                const selectedServices = Array.from(document.querySelectorAll('.edit-service-checkbox:checked'))
-                    .map(checkbox => checkbox.value);
-                
-                const customServices = Array.from(document.querySelectorAll('#edit-custom-services-list > div'))
-                    .map(div => div.querySelector('span').textContent.trim());
-                
-                professional.services = [...selectedServices, ...customServices];
+            }
+            
+            // Atualizar informações do usuário
+            if (user) {
+                user.email = document.getElementById('edit-email').value;
             }
             
             // Atualizar informações do salão
@@ -2821,50 +2614,20 @@
                     opening: document.getElementById('edit-opening-time').value,
                     closing: document.getElementById('edit-closing-time').value
                 };
-                
-                // Processar novas fotos
-                const photoInput = document.getElementById('edit-salon-photos');
-                if (photoInput.files && photoInput.files.length > 0) {
-                    const files = Array.from(photoInput.files).slice(0, 5);
-                    const newPhotos = [];
-                    
-                    // Simular processamento de fotos (em produção, enviaria para servidor)
-                    files.forEach(file => {
-                        if (file.type.startsWith('image/')) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                newPhotos.push(e.target.result);
-                                
-                                // Quando todas as fotos forem processadas, atualizar o estado
-                                if (newPhotos.length === files.length) {
-                                    salon.photos = [...(salon.photos || []), ...newPhotos].slice(0, 5); // Limitar a 5 fotos
-                                    stateManager.saveState();
-                                }
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    });
-                }
-            }
-            
-            // Atualizar email do usuário
-            if (user) {
-                user.email = document.getElementById('edit-email').value;
             }
             
             // Salvar estado
             stateManager.saveState();
             
-            alert('Perfil atualizado com sucesso!');
-            document.querySelector('.fixed').remove();
+            // Fechar modal
+            document.querySelector('#edit-profile-form').closest('.fixed').remove();
             
-            // Recarregar o dashboard para refletir as mudanças
-            renderView('professional-dashboard-page');
+            alert('✅ Alterações salvas com sucesso!');
         };
 
-        // Função principal de renderização
-        window.renderView = function(viewName) {
-            console.log('Navegando para:', viewName);
+        // Renderização de Views
+        function renderView(viewName) {
+            console.log(`🔄 Renderizando view: ${viewName}`);
             
             const pageContainer = document.getElementById('page-container');
             if (!pageContainer) return;
@@ -2899,71 +2662,113 @@
                 default:
                     content = getHomePageContent();
             }
-
-            pageContainer.innerHTML = content;
             
-            // Inicializar listeners específicos da página
-            setTimeout(() => {
-                switch(viewName) {
-                    case 'login-page':
-                        initAuthListeners();
-                        break;
-                    case 'admin-dashboard-page':
-                        initAdminDashboardListeners();
-                        break;
-                }
-                
-                // Atualizar ícones Lucide
-                if (window.lucide) {
+            pageContainer.innerHTML = content;
+            initViewListeners(viewName);
+            
+            // Atualizar ícones Lucide
+            if (window.lucide) {
+                setTimeout(() => {
                     lucide.createIcons();
-                }
-            }, 100);
-        };
+                }, 100);
+            }
+        }
 
-        // Inicialização da aplicação
-        function initApp() {
+        function initViewListeners(viewName) {
+            console.log(`🔧 Inicializando listeners para: ${viewName}`);
+            
+            switch(viewName) {
+                case 'login-page':
+                    initAuthListeners();
+                    break;
+                    
+                case 'search-page':
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput && stateManager.state.searchTerm) {
+                        searchInput.value = stateManager.state.searchTerm;
+                    }
+                    break;
+                    
+                case 'admin-dashboard-page':
+                    // Adicionar listeners para as abas do admin
+                    const professionalsTab = document.getElementById('professionals-tab');
+                    const appointmentsTab = document.getElementById('appointments-tab');
+                    
+                    if (professionalsTab) {
+                        professionalsTab.onclick = () => switchAdminTab('professionals');
+                    }
+                    if (appointmentsTab) {
+                        appointmentsTab.onclick = () => switchAdminTab('appointments');
+                    }
+                    
+                    // Adicionar listeners para botões de ação
+                    setTimeout(() => {
+                        document.querySelectorAll('.view-professional-details-btn').forEach(btn => {
+                            btn.onclick = () => {
+                                const professionalId = parseInt(btn.getAttribute('data-professional-id'));
+                                viewProfessionalDetails(professionalId);
+                            };
+                        });
+                        
+                        document.querySelectorAll('.remove-professional-btn').forEach(btn => {
+                            btn.onclick = () => {
+                                const professionalId = parseInt(btn.getAttribute('data-professional-id'));
+                                removeProfessional(professionalId);
+                            };
+                        });
+                    }, 100);
+                    break;
+                    
+                case 'booking-page':
+                    // Atualizar resumo em tempo real
+                    const updateSummary = () => {
+                        const service = document.getElementById('booking-service').value;
+                        const date = document.getElementById('booking-date').value;
+                        const time = document.getElementById('booking-time').value;
+                        
+                        const summaryService = document.getElementById('summary-service');
+                        const summaryDate = document.getElementById('summary-date');
+                        const summaryTime = document.getElementById('summary-time');
+                        const summaryPrice = document.getElementById('summary-price');
+                        
+                        if (summaryService) summaryService.textContent = service || '-';
+                        if (summaryDate) summaryDate.textContent = date ? new Date(date).toLocaleDateString('pt-BR') : '-';
+                        if (summaryTime) summaryTime.textContent = time || '-';
+                        
+                        if (summaryPrice) {
+                            const professional = stateManager.state.professionals.find(p => p.id === stateManager.state.bookingProfessionalId);
+                            summaryPrice.textContent = professional?.price || '-';
+                        }
+                    };
+                    
+                    document.getElementById('booking-service').addEventListener('change', updateSummary);
+                    document.getElementById('booking-date').addEventListener('change', updateSummary);
+                    document.getElementById('booking-time').addEventListener('change', updateSummary);
+                    
+                    // Atualizar inicialmente
+                    updateSummary();
+                    break;
+            }
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Inicializando WeCut...');
             
-            // Inicializar estado
+            // Inicializar state manager
             stateManager.init();
             
-            // Inicializar listeners globais
+            // Renderizar view inicial
+            renderView('home-page');
+            
+            // Inicializar navegação
             initNavbarListeners();
             
             // Atualizar UI de autenticação
             updateAuthUI();
             
-            // Renderizar página inicial
-            renderView('home-page');
-            
             console.log('✅ WeCut inicializado com sucesso!');
-        }
-
-        // Inicializar quando DOM estiver pronto
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApp);
-        } else {
-            initApp();
-        }
-
-        // Adicionar funções ao escopo global
-        window.handleLogin = handleLogin;
-        window.handleRegister = handleRegister;
-        window.showRegisterForm = showRegisterForm;
-        window.showLoginForm = showLoginForm;
-        window.viewProfessional = viewProfessional;
-        window.startBooking = startBooking;
-        window.confirmBooking = confirmBooking;
-        window.performSearch = performSearch;
-        window.showFilters = showFilters;
-        window.switchAppointmentTab = switchAppointmentTab;
-        window.switchProfessionalTab = switchProfessionalTab;
-        window.acceptAppointment = acceptAppointment;
-        window.rejectAppointment = rejectAppointment;
-        window.switchAdminTab = switchAdminTab;
-        window.removeProfessional = removeProfessional;
-        window.viewProfessionalDetails = viewProfessionalDetails;
-        window.closeProfessionalDetailsModal = closeProfessionalDetailsModal;
+        });
     </script>
 </body>
 </html>
