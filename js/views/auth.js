@@ -2,16 +2,13 @@
 import { stateManager } from '../state/stateManager.js';
 import { renderView } from '../main.js';
 
-// AVISO: Em produção, substituir por chamadas API backend
-const DEMO_PASSWORDS = {
-    'client@example.com': 'client123',
-    'pro@example.com': 'pro123', 
-    'admin@example.com': 'admin123'
-};
 
-export async function handleLogin(event) {
-    console.log('🔐 handleLogin executado');
-    if (event) event.preventDefault();
+function handleLogin(event) {
+    console.log('🔐 Tentando fazer login...');
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
     
     const email = document.getElementById('email')?.value;
     const password = document.getElementById('password')?.value;
@@ -22,35 +19,42 @@ export async function handleLogin(event) {
     }
 
     try {
-        // Buscar usuário no estado local
+        // Buscar usuário no estado
         const user = stateManager.state.users.find(u => u.email === email);
         
+        console.log('Usuário encontrado:', user);
+        console.log('Senha digitada:', password);
+        
         if (user) {
-            // Verificar senha (simulação - em produção seria no backend)
-            const expectedPassword = DEMO_PASSWORDS[email];
-            if (expectedPassword && password === expectedPassword) {
+            // Verificar senha diretamente do usuário
+            if (user.password === password) {
                 stateManager.setCurrentUser(user);
                 
                 // Redirecionamento baseado no tipo de usuário
                 if (user.type === 'admin') {
+                    console.log('Redirecionando para admin dashboard');
                     renderView('admin-dashboard-page');
                 } else if (user.type === 'professional') {
+                    console.log('Redirecionando para professional dashboard');
                     renderView('professional-dashboard-page');
                 } else {
+                    console.log('Redirecionando para search page');
                     renderView('search-page');
                 }
                 
                 updateAuthUI();
                 alert(`✅ Login realizado com sucesso! Bem-vindo(a), ${user.name}`);
             } else {
-                alert('E-mail ou senha incorretos');
+                console.error('Senha incorreta. Esperada:', user.password, 'Recebida:', password);
+                alert('❌ E-mail ou senha incorretos');
             }
         } else {
-            alert('E-mail ou senha incorretos');
+            console.error('Usuário não encontrado:', email);
+            alert('❌ E-mail ou senha incorretos');
         }
     } catch (error) {
-        console.error('Erro no login:', error);
-        alert('Erro ao fazer login. Tente novamente.');
+        console.error('Erro detalhado no login:', error);
+        alert('Erro ao fazer login: ' + error.message);
     }
 }
 
