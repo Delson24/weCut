@@ -5,7 +5,7 @@
 .wecut-button-hover:hover {
     transform: translateY(-1px);
     transition: all 0.2s ease;
-}
+} 
 
 .hidden {
     display: none;
